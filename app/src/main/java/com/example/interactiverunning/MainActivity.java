@@ -1,24 +1,44 @@
 package com.example.interactiverunning;
 
+import android.content.Context;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.os.Bundle;
-
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
-import android.view.View;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.Snackbar;
 
-import android.view.Menu;
-import android.view.MenuItem;
-
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements SensorEventListener {
+    SensorManager sensorManager;
+    Sensor sensor;
+    TextView show_sensor;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        show_sensor = findViewById(R.id.show_sensor);
+
+        sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+        Sensor testSensor = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER);
+
+        if (testSensor != null) {
+            sensorManager.registerListener(this, testSensor, SensorManager.SENSOR_DELAY_UI);
+            Toast.makeText(this, "SENSOR RUNNING", Toast.LENGTH_LONG).show();
+        } else {
+            Toast.makeText(this, "SENSOR MISSING", Toast.LENGTH_LONG).show();
+        }
+
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -52,5 +72,16 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onSensorChanged(SensorEvent event) {
+        Toast.makeText(this, "SENSOR CHANGE", Toast.LENGTH_LONG).show();
+        show_sensor.setText(String.valueOf(event.values[0]));
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+
     }
 }
