@@ -1,6 +1,7 @@
 package com.example.interactiverunning;
 
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -20,24 +21,20 @@ import com.google.android.material.snackbar.Snackbar;
 
 public class MainActivity extends AppCompatActivity implements SensorEventListener {
     SensorManager sensorManager;
-    Sensor sensor;
-    TextView show_sensor;
+    TextView show_x;
+    TextView show_y;
+    TextView show_z;
+    TextView show_filterx;
+    TextView show_filtery;
+    TextView show_filterz;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        show_sensor = findViewById(R.id.show_sensor);
 
-        sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
-        Sensor testSensor = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER);
-
-        if (testSensor != null) {
-            sensorManager.registerListener(this, testSensor, SensorManager.SENSOR_DELAY_UI);
-            Toast.makeText(this, "SENSOR RUNNING", Toast.LENGTH_LONG).show();
-        } else {
-            Toast.makeText(this, "SENSOR MISSING", Toast.LENGTH_LONG).show();
-        }
+//        startStepCounter();
+        startAccelerometer();
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -50,6 +47,34 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                         .setAction("Action", null).show();
             }
         });
+    }
+
+    public void startAccelerometer() {
+        sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+        Sensor accelSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+
+        if (accelSensor != null) {
+            sensorManager.registerListener(this, accelSensor, SensorManager.SENSOR_DELAY_FASTEST);
+            Toast.makeText(this, "SENSOR RUNNING", Toast.LENGTH_LONG).show();
+        } else {
+            Toast.makeText(this, "SENSOR MISSING", Toast.LENGTH_LONG).show();
+        }
+    }
+
+    public void startStepCounter() {
+        PackageManager pm = getPackageManager();
+        if (pm.hasSystemFeature(PackageManager.FEATURE_SENSOR_STEP_COUNTER)) {
+
+            sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+            Sensor testSensor = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER);
+
+            if (testSensor != null) {
+                sensorManager.registerListener(this, testSensor, SensorManager.SENSOR_DELAY_UI);
+                Toast.makeText(this, "SENSOR RUNNING", Toast.LENGTH_LONG).show();
+            } else {
+                Toast.makeText(this, "SENSOR MISSING", Toast.LENGTH_LONG).show();
+            }
+        }
     }
 
     @Override
@@ -76,8 +101,42 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     @Override
     public void onSensorChanged(SensorEvent event) {
-        Toast.makeText(this, "SENSOR CHANGE", Toast.LENGTH_LONG).show();
-        show_sensor.setText(String.valueOf(event.values[0]));
+        show_x = findViewById(R.id.show_x);
+        show_y = findViewById(R.id.show_y);
+        show_z = findViewById(R.id.show_z);
+
+        show_filterx = findViewById(R.id.show_filterx);
+        show_filtery = findViewById(R.id.show_filtery);
+        show_filterz = findViewById(R.id.show_filterz);
+
+
+        if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
+//            Toast.makeText(this, "ACC CHANGE", Toast.LENGTH_LONG).show();
+        } else {
+            Toast.makeText(this, "STEP CHANGE", Toast.LENGTH_LONG).show();
+        }
+        String xtext = "X: " + String.valueOf(event.values[0]);
+        String ytext = "Y: " + String.valueOf(event.values[1]);
+        String ztext = "Z: " + String.valueOf(event.values[2]);
+        show_x.setText(xtext);
+        show_y.setText(ytext);
+        show_z.setText(ztext);
+
+        String filterxtext = "Filter X: " + String.valueOf(event.values[0]);
+        String filterytext = "Filter Y: " + String.valueOf(event.values[1]);
+        String filterztext = "filter Z: " + String.valueOf(event.values[2]);
+        show_filterx.setText(filterxtext);
+        show_filtery.setText(filterytext);
+        show_filterz.setText(filterztext);
+
+    }
+
+    public void filterData(float x, float y, float z) {
+
+    }
+
+    public void writeFile(float x, float y, float z) {
+
     }
 
     @Override
