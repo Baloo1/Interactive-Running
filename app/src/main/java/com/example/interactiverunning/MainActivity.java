@@ -6,6 +6,7 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -17,6 +18,10 @@ import androidx.appcompat.widget.Toolbar;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
+
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.ByteBuffer;
 
 public class MainActivity extends AppCompatActivity implements SensorEventListener {
     SensorManager sensorManager;
@@ -36,6 +41,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        writeFile(1, 2, 3);
 
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -111,7 +118,30 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     }
 
     public void writeFile(float x, float y, float z) {
+        FileOutputStream stream = null;
+        try {
+            stream = openFileOutput("dataX.txt", Context.MODE_PRIVATE);
+            byte[] dataToWrite = (x + ", ").getBytes();
+            stream.write(dataToWrite);
 
+            stream = openFileOutput("dataY.txt", Context.MODE_PRIVATE);
+            dataToWrite = (y + ", ").getBytes();
+            stream.write(dataToWrite);
+
+            stream = openFileOutput("dataZ.txt", Context.MODE_PRIVATE);
+            dataToWrite = (z + ", ").getBytes();
+            stream.write(dataToWrite);
+        } catch (IOException e) {
+            Log.e("Exception", "File write failed: " + e.toString());
+        } finally {
+            if (stream != null) {
+                try {
+                    stream.close();
+                } catch (IOException e) {
+                    Log.e("Exception", "File write failed: " + e.toString());
+                }
+            }
+        }
     }
 
     @Override
