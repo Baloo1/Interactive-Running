@@ -1,7 +1,6 @@
 package com.example.interactiverunning;
 
 import android.content.Context;
-import android.content.pm.PackageManager;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -33,7 +32,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-//        startStepCounter();
         startAccelerometer();
 
         Toolbar toolbar = findViewById(R.id.toolbar);
@@ -54,26 +52,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         Sensor accelSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 
         if (accelSensor != null) {
-            sensorManager.registerListener(this, accelSensor, SensorManager.SENSOR_DELAY_FASTEST);
+            sensorManager.registerListener(this, accelSensor, SensorManager.SENSOR_DELAY_UI);
             Toast.makeText(this, "SENSOR RUNNING", Toast.LENGTH_LONG).show();
         } else {
             Toast.makeText(this, "SENSOR MISSING", Toast.LENGTH_LONG).show();
-        }
-    }
-
-    public void startStepCounter() {
-        PackageManager pm = getPackageManager();
-        if (pm.hasSystemFeature(PackageManager.FEATURE_SENSOR_STEP_COUNTER)) {
-
-            sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
-            Sensor testSensor = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER);
-
-            if (testSensor != null) {
-                sensorManager.registerListener(this, testSensor, SensorManager.SENSOR_DELAY_UI);
-                Toast.makeText(this, "SENSOR RUNNING", Toast.LENGTH_LONG).show();
-            } else {
-                Toast.makeText(this, "SENSOR MISSING", Toast.LENGTH_LONG).show();
-            }
         }
     }
 
@@ -109,12 +91,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         show_filtery = findViewById(R.id.show_filtery);
         show_filterz = findViewById(R.id.show_filterz);
 
-
-        if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
-//            Toast.makeText(this, "ACC CHANGE", Toast.LENGTH_LONG).show();
-        } else {
-            Toast.makeText(this, "STEP CHANGE", Toast.LENGTH_LONG).show();
-        }
         String xtext = "X: " + String.valueOf(event.values[0]);
         String ytext = "Y: " + String.valueOf(event.values[1]);
         String ztext = "Z: " + String.valueOf(event.values[2]);
@@ -128,7 +104,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         show_filterx.setText(filterxtext);
         show_filtery.setText(filterytext);
         show_filterz.setText(filterztext);
-
     }
 
     public void filterData(float x, float y, float z) {
