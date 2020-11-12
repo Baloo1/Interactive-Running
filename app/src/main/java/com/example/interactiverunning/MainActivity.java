@@ -26,9 +26,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     TextView show_x;
     TextView show_y;
     TextView show_z;
-    TextView show_filter_x;
-    TextView show_filter_y;
-    TextView show_filter_z;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -89,23 +86,12 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         show_y = findViewById(R.id.show_y);
         show_z = findViewById(R.id.show_z);
 
-        show_filter_x = findViewById(R.id.show_filterx);
-        show_filter_y = findViewById(R.id.show_filtery);
-        show_filter_z = findViewById(R.id.show_filterz);
-
         String xText = "X: " + x;
         String yText = "Y: " + y;
         String zText = "Z: " + z;
         show_x.setText(xText);
         show_y.setText(yText);
         show_z.setText(zText);
-
-        String filterXText = "Filter X: " + x;
-        String filterYText = "Filter Y: " + y;
-        String filterZText = "filter Z: " + z;
-        show_filter_x.setText(filterXText);
-        show_filter_y.setText(filterYText);
-        show_filter_z.setText(filterZText);
 
         writeFile(event.values[0], event.values[1], event.values[2]);
     }
