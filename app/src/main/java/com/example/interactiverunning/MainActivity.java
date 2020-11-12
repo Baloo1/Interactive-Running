@@ -9,7 +9,6 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -21,16 +20,15 @@ import com.google.android.material.snackbar.Snackbar;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.nio.ByteBuffer;
 
 public class MainActivity extends AppCompatActivity implements SensorEventListener {
     SensorManager sensorManager;
     TextView show_x;
     TextView show_y;
     TextView show_z;
-    TextView show_filterx;
-    TextView show_filtery;
-    TextView show_filterz;
+    TextView show_filter_x;
+    TextView show_filter_y;
+    TextView show_filter_z;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,21 +43,16 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         writeFile(1, 2, 3);
 
         FloatingActionButton fab = findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
+        fab.setOnClickListener(view -> Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+                .setAction("Action", null).show());
     }
 
     public void startAccelerometer() {
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
-        Sensor accelSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        Sensor accelerometerSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 
-        if (accelSensor != null) {
-            sensorManager.registerListener(this, accelSensor, SensorManager.SENSOR_DELAY_UI);
+        if (accelerometerSensor != null) {
+            sensorManager.registerListener(this, accelerometerSensor, SensorManager.SENSOR_DELAY_UI);
             Toast.makeText(this, "SENSOR RUNNING", Toast.LENGTH_LONG).show();
         } else {
             Toast.makeText(this, "SENSOR MISSING", Toast.LENGTH_LONG).show();
@@ -94,27 +87,23 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         show_y = findViewById(R.id.show_y);
         show_z = findViewById(R.id.show_z);
 
-        show_filterx = findViewById(R.id.show_filterx);
-        show_filtery = findViewById(R.id.show_filtery);
-        show_filterz = findViewById(R.id.show_filterz);
+        show_filter_x = findViewById(R.id.show_filterx);
+        show_filter_y = findViewById(R.id.show_filtery);
+        show_filter_z = findViewById(R.id.show_filterz);
 
-        String xtext = "X: " + String.valueOf(event.values[0]);
-        String ytext = "Y: " + String.valueOf(event.values[1]);
-        String ztext = "Z: " + String.valueOf(event.values[2]);
-        show_x.setText(xtext);
-        show_y.setText(ytext);
-        show_z.setText(ztext);
+        String xText = "X: " + event.values[0];
+        String yText = "Y: " + event.values[1];
+        String zText = "Z: " + event.values[2];
+        show_x.setText(xText);
+        show_y.setText(yText);
+        show_z.setText(zText);
 
-        String filterxtext = "Filter X: " + String.valueOf(event.values[0]);
-        String filterytext = "Filter Y: " + String.valueOf(event.values[1]);
-        String filterztext = "filter Z: " + String.valueOf(event.values[2]);
-        show_filterx.setText(filterxtext);
-        show_filtery.setText(filterytext);
-        show_filterz.setText(filterztext);
-    }
-
-    public void filterData(float x, float y, float z) {
-
+        String filterXText = "Filter X: " + event.values[0];
+        String filterYText = "Filter Y: " + event.values[1];
+        String filterZText = "filter Z: " + event.values[2];
+        show_filter_x.setText(filterXText);
+        show_filter_y.setText(filterYText);
+        show_filter_z.setText(filterZText);
     }
 
     public void writeFile(float x, float y, float z) {
