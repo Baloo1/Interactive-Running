@@ -20,6 +20,7 @@ import com.google.android.material.snackbar.Snackbar;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Date;
 
 public class MainActivity extends AppCompatActivity implements SensorEventListener {
     SensorManager sensorManager;
@@ -93,10 +94,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         show_y.setText(yText);
         show_z.setText(zText);
 
-        writeFile(event.values[0], event.values[1], event.values[2]);
+        writeFile(event.timestamp, event.values[0], event.values[1], event.values[2]);
     }
 
-    public void writeFile(float x, float y, float z) {
+    public void writeFile(long ns, float x, float y, float z) {
         FileOutputStream stream = null;
         try {
             stream = openFileOutput("dataX.txt", Context.MODE_APPEND);
@@ -109,6 +110,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
             stream = openFileOutput("dataZ.txt", Context.MODE_APPEND);
             dataToWrite = (z + ", ").getBytes();
+            stream.write(dataToWrite);
+
+            stream = openFileOutput("timestamp.txt", Context.MODE_APPEND);
+            dataToWrite = (ns + ", ").getBytes();
             stream.write(dataToWrite);
         } catch (IOException e) {
             Log.e("Exception", "File write failed: " + e.toString());
