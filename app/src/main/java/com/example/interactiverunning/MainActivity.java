@@ -40,8 +40,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        writeFile(1, 2, 3);
-
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(view -> Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                 .setAction("Action", null).show());
@@ -83,6 +81,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     @Override
     public void onSensorChanged(SensorEvent event) {
+        String x = Float.toString(event.values[0]);
+        String y = Float.toString(event.values[1]);
+        String z = Float.toString(event.values[2]);
+
         show_x = findViewById(R.id.show_x);
         show_y = findViewById(R.id.show_y);
         show_z = findViewById(R.id.show_z);
@@ -91,33 +93,35 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         show_filter_y = findViewById(R.id.show_filtery);
         show_filter_z = findViewById(R.id.show_filterz);
 
-        String xText = "X: " + event.values[0];
-        String yText = "Y: " + event.values[1];
-        String zText = "Z: " + event.values[2];
+        String xText = "X: " + x;
+        String yText = "Y: " + y;
+        String zText = "Z: " + z;
         show_x.setText(xText);
         show_y.setText(yText);
         show_z.setText(zText);
 
-        String filterXText = "Filter X: " + event.values[0];
-        String filterYText = "Filter Y: " + event.values[1];
-        String filterZText = "filter Z: " + event.values[2];
+        String filterXText = "Filter X: " + x;
+        String filterYText = "Filter Y: " + y;
+        String filterZText = "filter Z: " + z;
         show_filter_x.setText(filterXText);
         show_filter_y.setText(filterYText);
         show_filter_z.setText(filterZText);
+
+        writeFile(event.values[0], event.values[1], event.values[2]);
     }
 
     public void writeFile(float x, float y, float z) {
         FileOutputStream stream = null;
         try {
-            stream = openFileOutput("dataX.txt", Context.MODE_PRIVATE);
+            stream = openFileOutput("dataX.txt", Context.MODE_APPEND);
             byte[] dataToWrite = (x + ", ").getBytes();
             stream.write(dataToWrite);
 
-            stream = openFileOutput("dataY.txt", Context.MODE_PRIVATE);
+            stream = openFileOutput("dataY.txt", Context.MODE_APPEND);
             dataToWrite = (y + ", ").getBytes();
             stream.write(dataToWrite);
 
-            stream = openFileOutput("dataZ.txt", Context.MODE_PRIVATE);
+            stream = openFileOutput("dataZ.txt", Context.MODE_APPEND);
             dataToWrite = (z + ", ").getBytes();
             stream.write(dataToWrite);
         } catch (IOException e) {
