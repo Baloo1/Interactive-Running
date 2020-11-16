@@ -79,6 +79,14 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     @Override
     public void onSensorChanged(SensorEvent event) {
+        showAccelerometer(event);
+    }
+
+    public void showCadence(SensorEvent event) {
+
+    }
+
+    public void showAccelerometer(SensorEvent event) {
         String x = Float.toString(event.values[0]);
         String y = Float.toString(event.values[1]);
         String z = Float.toString(event.values[2]);
