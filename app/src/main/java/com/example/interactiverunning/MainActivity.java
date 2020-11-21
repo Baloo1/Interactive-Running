@@ -6,9 +6,11 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
+import android.os.Debug;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.WindowManager;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -20,7 +22,6 @@ import com.google.android.material.snackbar.Snackbar;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.Date;
 
 public class MainActivity extends AppCompatActivity implements SensorEventListener {
     SensorManager sensorManager;
@@ -31,6 +32,18 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+
+        if (BuildConfig.DEBUG) { // don't even consider it otherwise
+            if (Debug.isDebuggerConnected()) {
+                Log.d("SCREEN", "Keeping screen on for debugging, detach debugger and force an onResume to turn it off.");
+                getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+            } else {
+                getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+                Log.d("SCREEN", "Keeping screen on for debugging is now deactivated.");
+            }
+        }
+
         setContentView(R.layout.activity_main);
 
         startAccelerometer();
