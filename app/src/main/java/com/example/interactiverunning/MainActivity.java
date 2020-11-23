@@ -1,7 +1,5 @@
 package com.example.interactiverunning;
 
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
 import android.content.Context;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -14,13 +12,11 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
-import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.navigation.fragment.NavHostFragment;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
@@ -38,8 +34,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-
-        if (BuildConfig.DEBUG) { // don't even consider it otherwise
+        // Stop screen from sleep
+        if (BuildConfig.DEBUG) {
             if (Debug.isDebuggerConnected()) {
                 Log.d("SCREEN", "Keeping screen on for debugging, detach debugger and force an onResume to turn it off.");
                 getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
@@ -160,7 +156,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     @Override
     public void notifyListeners(View button) {
-        if(button.getId() == R.id.start_button) {
+        if (button.getId() == R.id.start_button) {
             startAccelerometer();
         }
     }
