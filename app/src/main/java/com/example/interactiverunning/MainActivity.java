@@ -1,5 +1,7 @@
 package com.example.interactiverunning;
 
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.content.Context;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -10,12 +12,15 @@ import android.os.Debug;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.navigation.fragment.NavHostFragment;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
@@ -23,7 +28,7 @@ import com.google.android.material.snackbar.Snackbar;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-public class MainActivity extends AppCompatActivity implements SensorEventListener {
+public class MainActivity extends AppCompatActivity implements SensorEventListener, FirstFragment.FragmentListener {
     SensorManager sensorManager;
     TextView show_x;
     TextView show_y;
@@ -45,8 +50,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         }
 
         setContentView(R.layout.activity_main);
-
-        startAccelerometer();
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -90,6 +93,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         return super.onOptionsItemSelected(item);
     }
 
+
     @Override
     public void onSensorChanged(SensorEvent event) {
         showAccelerometer(event);
@@ -115,7 +119,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         show_y.setText(yText);
         show_z.setText(zText);
 
-        writeFile(event.timestamp, event.values[0], event.values[1], event.values[2]);
+//        writeFile(event.timestamp, event.values[0], event.values[1], event.values[2]);
     }
 
     public void writeFile(long ns, float x, float y, float z) {
@@ -152,5 +156,12 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
 
+    }
+
+    @Override
+    public void notifyListeners(View button) {
+        if(button.getId() == R.id.start_button) {
+            startAccelerometer();
+        }
     }
 }
