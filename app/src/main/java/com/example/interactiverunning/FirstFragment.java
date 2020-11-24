@@ -1,6 +1,6 @@
 package com.example.interactiverunning;
 
-import android.app.Activity;
+import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,9 +15,9 @@ public class FirstFragment extends Fragment {
     private FragmentListener fragmentListener;
 
     @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-        fragmentListener = (FragmentListener) activity;
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        fragmentListener = (FragmentListener) context;
     }
 
     @Override
