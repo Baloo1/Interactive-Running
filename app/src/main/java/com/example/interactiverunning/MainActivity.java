@@ -26,6 +26,7 @@ import java.io.IOException;
 
 public class MainActivity extends AppCompatActivity implements SensorEventListener, IFragmentListener {
     SensorManager sensorManager;
+    Boolean sensorIsRunning = false;
     TextView show_x;
     TextView show_y;
     TextView show_z;
@@ -154,10 +155,17 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     }
 
+    private void handleStartButton(View button) {
+        if (!sensorIsRunning) {
+            button.setVisibility(View.GONE);
+            startAccelerometer();
+        }
+    }
+
     @Override
     public void notifyListeners(View button) {
         if (button.getId() == R.id.start_button) {
-            startAccelerometer();
+            handleStartButton(button);
         }
     }
 }
