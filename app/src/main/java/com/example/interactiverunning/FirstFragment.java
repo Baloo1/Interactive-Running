@@ -12,12 +12,12 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.fragment.NavHostFragment;
 
 public class FirstFragment extends Fragment {
-    private FragmentListener fragmentListener;
+    IFragmentListener fragmentListener;
 
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        fragmentListener = (FragmentListener) context;
+        fragmentListener = (IFragmentListener) context;
     }
 
     @Override
@@ -42,9 +42,5 @@ public class FirstFragment extends Fragment {
 
         view.findViewById(R.id.button_first).setOnClickListener(view1 -> NavHostFragment.findNavController(FirstFragment.this)
                 .navigate(R.id.action_FirstFragment_to_SecondFragment));
-    }
-
-    public interface FragmentListener {
-        void notifyListeners(View button);
     }
 }

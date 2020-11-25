@@ -24,7 +24,7 @@ import com.google.android.material.snackbar.Snackbar;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-public class MainActivity extends AppCompatActivity implements SensorEventListener, FirstFragment.FragmentListener {
+public class MainActivity extends AppCompatActivity implements SensorEventListener, IFragmentListener {
     SensorManager sensorManager;
     TextView show_x;
     TextView show_y;
