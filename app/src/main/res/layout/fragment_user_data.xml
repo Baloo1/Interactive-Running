@@ -8,31 +8,35 @@
         android:id="@+id/length_field"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:hint="Längd"
         app:layout_constraintBottom_toTopOf="@id/gender_field"
         app:layout_constraintEnd_toStartOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <EditText
+    <Spinner
         android:id="@+id/gender_field"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="@android:drawable/btn_dropdown"
         app:layout_constraintBottom_toTopOf="@id/age_field"
         app:layout_constraintEnd_toStartOf="parent"
         app:layout_constraintHorizontal_bias="0.038"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/gender_field"
-        app:layout_constraintVertical_bias="0.0" />
+        app:layout_constraintTop_toBottomOf="@id/length_field"
+        android:spinnerMode="dropdown"/>
 
-    <EditText
+    <Spinner
         android:id="@+id/age_field"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="@android:drawable/btn_dropdown"
         app:layout_constraintBottom_toTopOf="@id/exercise_field"
         app:layout_constraintEnd_toStartOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/age_field" />
+        app:layout_constraintTop_toBottomOf="@id/gender_field"
+        android:spinnerMode="dropdown"/>
 
     <EditText
         android:id="@+id/exercise_field"
