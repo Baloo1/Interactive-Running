@@ -10,7 +10,7 @@
         android:id="@+id/UserDataFragment"
         android:name="com.example.interactiverunning.UserDataFragment"
         android:label="User data Fragment"
-        tools:layout="@layout/fragment_first">
+        tools:layout="@layout/fragment_user_data">
         <action
             android:id="@+id/action_UserDataFragment_to_FirstFragment"
             app:destination="@id/FirstFragment" />
