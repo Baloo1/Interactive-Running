@@ -35,16 +35,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // Stop screen from sleep
-        if (BuildConfig.DEBUG) {
-            if (Debug.isDebuggerConnected()) {
-                Log.d("SCREEN", "Keeping screen on for debugging, detach debugger and force an onResume to turn it off.");
-                getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-            } else {
-                getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-                Log.d("SCREEN", "Keeping screen on for debugging is now deactivated.");
-            }
-        }
+        debugHelper();
 
         setContentView(R.layout.activity_main);
 
@@ -54,6 +45,18 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(view -> Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                 .setAction("Action", null).show());
+    }
+
+    public void debugHelper() {
+        if (BuildConfig.DEBUG) {
+            if (Debug.isDebuggerConnected()) {
+                Log.d("SCREEN", "Keeping screen on for debugging, detach debugger and force an onResume to turn it off.");
+                getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+            } else {
+                getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+                Log.d("SCREEN", "Keeping screen on for debugging is now deactivated.");
+            }
+        }
     }
 
     public void startAccelerometer() {
@@ -94,10 +97,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     @Override
     public void onSensorChanged(SensorEvent event) {
         showAccelerometer(event);
-    }
-
-    public void showCadence(SensorEvent event) {
-
     }
 
     public void showAccelerometer(SensorEvent event) {
