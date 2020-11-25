@@ -3,7 +3,18 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/FirstFragment">
+    app:startDestination="@id/UserDataFragment">
+
+
+    <fragment
+        android:id="@+id/UserDataFragment"
+        android:name="com.example.interactiverunning.UserDataFragment"
+        android:label="User data Fragment"
+        tools:layout="@layout/fragment_first">
+        <action
+            android:id="@+id/action_UserDataFragment_to_FirstFragment"
+            app:destination="@id/FirstFragment" />
+    </fragment>
 
     <fragment
         android:id="@+id/FirstFragment"
