@@ -17,7 +17,7 @@ public class InteractiveRunning {
     // 700 values in array, aprox 10 steps
     //
 
-    public static void main(String[] args) throws IOException, ClassNotFoundException {
+    public static void calculateData(Double[] dataX, Double[] dataY, Double[] dataZ) throws IOException, ClassNotFoundException {
 
         // --------- variables ---------
         String filenameDataX = "dataX.txt";
@@ -78,12 +78,6 @@ public class InteractiveRunning {
         }
 
         // turn lists to arrays
-        Double[] dataX = new Double[dataX_list.size()];
-        dataX = dataX_list.toArray(dataX);
-        Double[] dataY = new Double[dataY_list.size()];
-        dataY = dataY_list.toArray(dataY);
-        Double[] dataZ = new Double[dataZ_list.size()];
-        dataZ = dataZ_list.toArray(dataZ);
         Double[] dataT = new Double[dataT_list.size()];
         dataT = dataT_list.toArray(dataT);
 
