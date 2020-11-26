@@ -12,7 +12,7 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.fragment.NavHostFragment;
 
 public class FirstFragment extends Fragment {
-    IFragmentListener fragmentListener;
+    private IFragmentListener fragmentListener;
 
     @Override
     public void onAttach(Context context) {
@@ -40,7 +40,7 @@ public class FirstFragment extends Fragment {
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        view.findViewById(R.id.button_first).setOnClickListener(view1 -> NavHostFragment.findNavController(FirstFragment.this)
-                .navigate(R.id.action_FirstFragment_to_SecondFragment));
+        view.findViewById(R.id.button_first).setOnClickListener(view1 -> NavHostFragment.findNavController(
+                FirstFragment.this).navigate(R.id.action_FirstFragment_to_SecondFragment));
     }
 }
