@@ -29,14 +29,9 @@ public class InteractiveRunning {
         double[] dataXFiltered = lowPassFilter(dataX, 10, dataT);
         double[] dataYFiltered = lowPassFilter(dataY, 10, dataT);
         double[] dataZFiltered = lowPassFilter(dataZ, 10, dataT);
-        double[] dataTFiltered = dataT;
 
         // ---------  Get the vector magnitude ---------
-        // --------- Normalize, find peaks, find valleys ---------
-        double[] accNorm = new double[dataTFiltered.length];
-
         // --------- Peaks ---------
-        ArrayList<Double> peaksList = new ArrayList<>();
         ArrayList<Double> peaksTimeList = new ArrayList<>();
         double peakThreshold = 7;
         int numPeaks = 0;
@@ -49,9 +44,9 @@ public class InteractiveRunning {
         // calculate Normalized Acceleration, find peaks, find valleys
         double earlierAccNormalised = normalizeAcceleration(dataXFiltered[0], dataYFiltered[0], dataZFiltered[0]);
         double nextAccNormalised = earlierAccNormalised;
-        for (int i = 0; i < dataTFiltered.length; i++) {
+        for (int i = 0; i < dataT.length; i++) {
             double currentAccNormalised = nextAccNormalised;
-            if (i < dataTFiltered.length - 1) {
+            if (i < dataT.length - 1) {
                 nextAccNormalised = normalizeAcceleration(dataXFiltered[i + 1], dataYFiltered[i + 1], dataZFiltered[i + 1]);
             }
 
@@ -62,8 +57,7 @@ public class InteractiveRunning {
 
                 // Remove too low peaks
                 if (currentAccNormalised > peakThreshold) {
-                    peaksList.add(currentAccNormalised);
-                    peaksTimeList.add(dataTFiltered[i]);
+                    peaksTimeList.add(dataT[i]);
                     numPeaks++;
                 }
             }
@@ -74,19 +68,16 @@ public class InteractiveRunning {
                 // Remove the low valleys
                 if (currentAccNormalised < valleyThreshold) {
                     valleyList.add(currentAccNormalised);
-                    valleyTimeList.add(dataTFiltered[i]);
+                    valleyTimeList.add(dataT[i]);
                 }
             }
 
-            accNorm[i] = currentAccNormalised;
             earlierAccNormalised = currentAccNormalised;
         }
 
         // Make peak array of list
-        double[] peaks = new double[peaksList.size()];
         double[] peakTime = new double[peaksTimeList.size()];
-        for (int i = 0; i < peaksList.size(); i++) {
-            peaks[i] = peaksList.get(i);
+        for (int i = 0; i < peaksTimeList.size(); i++) {
             peakTime[i] = peaksTimeList.get(i);
         }
 
@@ -121,7 +112,7 @@ public class InteractiveRunning {
 
         // Remove double-valleys (=false valleys)
         // calculate the time differences
-        double delta = 0;
+        double delta;
         for (int i = 0; i < valleyTimeList.size() - 1; i++) {
             delta = valleyTimeList.get(i + 1) - valleyTimeList.get(i);
             // remove the valleys that are to close to each other (=false valleys)
