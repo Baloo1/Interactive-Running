@@ -5,144 +5,92 @@ import org.apache.commons.math3.transform.DftNormalization;
 import org.apache.commons.math3.transform.FastFourierTransformer;
 import org.apache.commons.math3.transform.TransformType;
 
-import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Scanner;
 
 
 public class InteractiveRunning {
 
     // TODO: 10 seconds
-    // 700 values in array, aprox 10 steps
-    //
+    // 700 values in array, approx 10 steps
+    // Frequency for peaks from user input
+    // Running speed from user input
 
-    public static void calculateData(Double[] dataX, Double[] dataY, Double[] dataZ) throws IOException, ClassNotFoundException {
-
-        // --------- variables ---------
-        String filenameDataX = "dataX.txt";
-
-        ArrayList<Double> dataX_list = new ArrayList<Double>();
-        String filenameDataY = "dataY.txt";
-        Double[] dataXFilt;
-
-        ArrayList<Double> dataY_list = new ArrayList<Double>();
-        String filenameDataZ = "dataZ.txt";
-        Double[] dataYFilt;
-
-        ArrayList<Double> dataZ_list = new ArrayList<Double>();
-        String filenameDataT = "timestamp.txt";
-        Double[] dataZFilt;
-        ArrayList<Double> dataT_list = new ArrayList<Double>();
-        Double[] datatFilt;
-
-        ArrayList<Double> dataTemp_list = new ArrayList<Double>();
-
-        // ------------------ code ------------------
-
+    public static void calculateData(double[] dataX, double[] dataY, double[] dataZ, double[] dataSensorT) throws IOException, ClassNotFoundException {
         // --------- load recorded data ---------
         // time-data
-        double tCurr;
-        double t0 = 0;
-        File fileT = new File(filenameDataT);
-        Scanner scanT = new Scanner(fileT);
-        int lineNum = 1;
-        while (scanT.hasNextLine()) {
-            tCurr = Double.parseDouble(scanT.nextLine());
-            if (lineNum == 1) {
-                t0 = tCurr;
-            }
-            dataT_list.add((tCurr - t0) * Math.pow(10, -9));
-            lineNum++;
+        // recalculate sensor timestamp
+        double[] dataT = new double[dataSensorT.length];
+        double t0 = dataSensorT[0];
+        for (int i = 0; i < dataSensorT.length; i++) {
+            dataT[i] = (dataSensorT[i] - t0) * Math.pow(10, -9);
         }
-        // x-acceleration
-        File fileX = new File(filenameDataX);
-        Scanner scanX = new Scanner(fileX);
-        while (scanX.hasNextLine()) {
-            dataX_list.add(Double.parseDouble(scanX.nextLine()));
-        }
-
-        // y-acceleration
-        File fileY = new File(filenameDataY);
-        Scanner scanY = new Scanner(fileY);
-
-        while (scanY.hasNextLine()) {
-            dataY_list.add(Double.parseDouble(scanY.nextLine()));
-        }
-
-        // z-acceleration
-        File fileZ = new File(filenameDataZ);
-        Scanner scanZ = new Scanner(fileZ);
-        while (scanZ.hasNextLine()) {
-            dataZ_list.add(Double.parseDouble(scanZ.nextLine()));
-        }
-
-        // turn lists to arrays
-        Double[] dataT = new Double[dataT_list.size()];
-        dataT = dataT_list.toArray(dataT);
 
         // --------- Filter the data ---------
-        // TODO ????
-        // TEMP
-        // calculate sampling frequency
-        double fs = 1 / (dataT[1] - dataT[1]);
-
-        //dataXFilt=LowPassFilter(dataX,4,fs);
-        dataXFilt = dataX;
-        dataYFilt = dataY;
-        dataZFilt = dataZ;
-        datatFilt = dataT;
-        // END OF TEMP
+        double[] dataXFiltered;
+        dataXFiltered = LowPassFilter(dataX, 10, dataT);
+        double[] dataYFiltered;
+        dataYFiltered = LowPassFilter(dataY, 10, dataT);
+        double[] dataZFiltered;
+        dataZFiltered = LowPassFilter(dataZ, 10, dataT);
+        double[] dataTFiltered;
+        dataTFiltered = dataT;
 
 
         // ---------  Get the vector magnitude ---------
-        ArrayList<Double> accNorm_list = new ArrayList<Double>();
-        for (int j = 0; j < datatFilt.length; j++) {
-            Double a = Math.pow(dataXFilt[j], 2) + Math.pow(dataYFilt[j], 2) + Math.pow(dataZFilt[j], 2);
-            accNorm_list.add(Math.sqrt(a));
-        }
+        // ----- normalize, find peaks and find valleys
+        double[] accNorm = new double[dataTFiltered.length];
 
-        Double[] accNorm = new Double[accNorm_list.size()];
-        accNorm = accNorm_list.toArray(accNorm);
+        // --------- Peaks ---------
+        ArrayList<Double> peaksList = new ArrayList<>();
+        ArrayList<Double> timeList = new ArrayList<>();
 
+        // Peak threshhold
+        double peakThreshold = 7;
 
-        // --------- Cadence ---------
-        // Get all peaks and time for every peak
-        Double[] pks = findPeak(accNorm);
-        Double[] t = findTimeOfPeak(accNorm, datatFilt);
+        int numPeaks = 0;
 
-
-        // Remove to low peaks
-        double threshold = 18;
-        ArrayList<Double> peaksList = new ArrayList<Double>();
-        ArrayList<Double> timeList = new ArrayList<Double>();
-
-
-        for (int ind = 0; ind < pks.length; ind++) {
-            if (pks[ind] > threshold) {
-                peaksList.add(pks[ind]);
-                timeList.add(t[ind]);
+        // calculate accNormalized and find peaks
+        double earlierAccNormalised = Math.sqrt(Math.pow(dataXFiltered[0], 2) + Math.pow(dataYFiltered[0], 2) + Math.pow(dataZFiltered[0], 2));
+        double nextAccNormalised = Math.sqrt(Math.pow(dataXFiltered[0], 2) + Math.pow(dataYFiltered[0], 2) + Math.pow(dataZFiltered[0], 2));
+        for (int i = 0; i < dataTFiltered.length; i++) {
+            double currentAccNormalised = nextAccNormalised;
+            if(i<dataTFiltered.length-1){
+                nextAccNormalised = Math.sqrt(Math.pow(dataXFiltered[i+1], 2) + Math.pow(dataYFiltered[i+1], 2) + Math.pow(dataZFiltered[i+1], 2));
             }
+            // --------- Cadence ---------
+            // Get all peaks and time for every peak
+            if (currentAccNormalised < earlierAccNormalised || currentAccNormalised < nextAccNormalised) { //check for peaks
+
+                // Remove to low peaks
+                if (currentAccNormalised > peakThreshold) {
+                    peaksList.add(currentAccNormalised);
+                    timeList.add(dataTFiltered[i]);
+                    numPeaks++;
+                }
+            }
+
+            accNorm[i] = currentAccNormalised;
+            earlierAccNormalised = currentAccNormalised;
         }
 
         // make array of list
-        Double[] peaks = new Double[peaksList.size()];
-        peaks = peaksList.toArray(peaks);
-        Double[] peakTime = new Double[timeList.size()];
-        peakTime = timeList.toArray(peakTime);
+        double[] peaks = new double[peaksList.size()];
+        double[] peakTime = new double[timeList.size()];
+        for (int i = 0; i < peaksList.size(); i++) {
+            peaks[i] = peaksList.get(i);
+            peakTime[i] = timeList.get(i);
+        }
 
-        // Count the peaks
-        int numPeaks = peaks.length;
-        //System.out.println(numPeaks);
+        System.out.println("The number of detected steps are: " + numPeaks);
+
         // recalculate the unit of the cadence
         double timeElapsed = peakTime[numPeaks - 1] - peakTime[0]; // time between first and last
         double cadence = Math.round(numPeaks * 60 / timeElapsed); // [steps/min]
 
         // print result
-        System.out.println("The cadence is:");
-        System.out.print(cadence);
-        System.out.print(" steps/min");
-        System.out.println(" ");
+        System.out.println("The cadence is:" + cadence + " steps/min");
 
         // --------- stride length ---------
         // INPUT TODO
@@ -168,15 +116,15 @@ public class InteractiveRunning {
 
         // Find the valleys time for every valley
         Double[] vly = findValley(accNorm);
-        Double[] timeVly = findTimeOfValley(accNorm, datatFilt);
+        Double[] timeVly = findTimeOfValley(accNorm, dataTFiltered);
         // Remove the low valleys
-        threshold = 5;
+        double threshold2 = 1.2;
         ArrayList<Double> valleyList = new ArrayList<Double>();
         ArrayList<Double> timeValleyList = new ArrayList<Double>();
 
 
         for (int ind = 0; ind < vly.length; ind++) {
-            if (vly[ind] < threshold) {
+            if (vly[ind] < threshold2) {
                 valleyList.add(vly[ind]);
                 timeValleyList.add(timeVly[ind]);
             }
@@ -207,7 +155,8 @@ public class InteractiveRunning {
         valleyTime = timeValleyList.toArray(valleyTime);
 
         // remove excess valleys (depend on which foot began)
-        if (timeValleyList.size() > timeList.size()) {
+
+        while (timeValleyList.size() > timeList.size()) {
             timeValleyList.remove(timeValleyList.size() - 1);
         }
 
@@ -222,59 +171,12 @@ public class InteractiveRunning {
 
 
         // Calculate average GCT and fix unit
-        GCT_mean = GCT_mean * 1000 / (GCT.length); // [ms]
+        GCT_mean = GCT_mean / (GCT.length); // [s]
 
         System.out.println("The average ground contact time is:");
         System.out.print(-GCT_mean);
-        System.out.print(" ms");
+        System.out.print(" s");
 
-    }
-
-    static Double[] findPeak(Double[] data) {
-        ArrayList<Double> peaks_list = new ArrayList<Double>();
-
-        for (int i = 0; i < data.length; i++) {
-            // if data[i] is greater than its surrounding values it is a peak
-
-            if (i - 1 >= 0 && data[i] < data[i - 1]) { //check left
-                continue; // no peak
-            }
-            if (i + 1 <= data.length - 1 && data[i] < data[i + 1]) { // check right
-                continue; // no peak
-            }
-
-            // if peak is found, save it
-            peaks_list.add(data[i]);
-        }
-
-        // make array
-        Double[] peaks = new Double[peaks_list.size()];
-        peaks = peaks_list.toArray(peaks);
-        return peaks;
-    }
-
-    static Double[] findTimeOfPeak(Double[] data, Double[] time) {
-        ArrayList<Double> time_list = new ArrayList<Double>();
-
-        for (int i = 0; i < data.length; i++) {
-            // if data[i] is greater than its surrounding values it is a peak
-
-            if (i - 1 >= 0 && data[i] < data[i - 1]) { //check left
-                continue; // no peak
-            }
-            if (i + 1 <= data.length - 1 && data[i] < data[i + 1]) { // check right
-                continue; // no peak
-            }
-
-
-            // if peak is found, save it
-            time_list.add(time[i]);
-        }
-
-        // make array
-        Double[] timeOfPeaks = new Double[time_list.size()];
-        timeOfPeaks = time_list.toArray(timeOfPeaks);
-        return timeOfPeaks;
     }
 
     static Double[] findValley(Double[] data) {
@@ -302,7 +204,7 @@ public class InteractiveRunning {
     }
 
 
-    static Double[] findTimeOfValley(Double[] data, Double[] time) {
+    static Double[] findTimeOfValley(Double[] data, double[] time) {
         ArrayList<Double> time_list = new ArrayList<Double>();
 
         for (int i = 1; i < data.length - 1; i++) {
@@ -325,54 +227,169 @@ public class InteractiveRunning {
         return timeOfValley;
     }
 
-    public static double[] LowPassFilter(Double[] dataX, double lowPass, double frequency) {
+    public static double[] LowPassFilter(double[] data, double fc, double[] dataT) {
         //data: input data, must be spaced equally in time.
-        //lowPass: The cutoff frequency at which
-        //frequency: The frequency of the input data.
+        //cf: The cutoff frequency at which
+        //t: The time of the input data.
 
-        //The apache Fft (Fast Fourier Transform) accepts arrays that are powers of 2.
-        int minPowerOf2 = 1;
-        while (minPowerOf2 < dataX.length)
-            minPowerOf2 = 2 * minPowerOf2;
-
-        //pad with zeros
-        double[] padded = new double[minPowerOf2];
-        for (int i = 0; i < dataX.length; i++)
-            padded[i] = dataX[i];
+        double fs = 1 / (dataT[1] - dataT[0]);
+        int l = data.length;
 
 
-        FastFourierTransformer transformer = new FastFourierTransformer(DftNormalization.STANDARD);
-        Complex[] fourierTransform = transformer.transform(padded, TransformType.FORWARD);
-
-        //build the frequency domain array
-        double[] frequencyDomain = new double[fourierTransform.length];
-        for (int i = 0; i < frequencyDomain.length; i++)
-            frequencyDomain[i] = frequency * i / (double) fourierTransform.length;
-
-        //build the classifier array, 2s are kept and 0s do not pass the filter
-        double[] keepPoints = new double[frequencyDomain.length];
-        keepPoints[0] = 1;
-        for (int i = 1; i < frequencyDomain.length; i++) {
-            if (frequencyDomain[i] < lowPass)
-                keepPoints[i] = 2;
-            else
-                keepPoints[i] = 0;
+        int pow = 1;
+        while (pow < data.length) {
+            pow = 2 * pow;
         }
 
-        //filter the fft
-        for (int i = 0; i < fourierTransform.length; i++)
-            fourierTransform[i] = fourierTransform[i].multiply(keepPoints[i]);
+        // zeropadd
+        double[] paddedData = new double[pow];
+        int L = paddedData.length;
+        double[] f = new double[L];
+        for (int i = 0; i < data.length; i++) {
+            paddedData[i] = data[i];
+        }
+
+        // FFT
+        FastFourierTransformer transformer = new FastFourierTransformer(DftNormalization.STANDARD);
+        Complex[] D = transformer.transform(paddedData, TransformType.FORWARD);
+
+        //debugg
+        double[] a = {paddedData[1], paddedData[2]};
+        Complex[] aComp = transformer.transform(a, TransformType.FORWARD);
+
+        // DEBUGG
+//		Complex[] d = transformer.transform(D, TransformType.INVERSE);
+//		double[] dreal = new double[L+1];
+//		for(int i = 0; i< dreal.length; i++){
+//			dreal[i] = d[i].getReal();
+//		}
+
+
+        // dataShift=[D(round(length(D)/2)+1:end); D(1:length(D)/2)];
+        Complex[] dataShift = new Complex[L];
+        // Double[] H = new Double[L];
+        Complex[] filterData = new Complex[L];
+
+        Complex[] DATA = new Complex[L];
+        Complex[] ifft = new Complex[L];
+
+        int j1 = 0;
+        int j2 = (L / 2);
+        int j3 = (L / 2);
+        int j4 = 0;
+        Complex z = new Complex(0.0, 0.0); // = 0
+        for (int i = 0; i < L; i++) {
+            f[i] = (i + 1) * fs / L;
+            // fftshift
+            if (i < L / 2) {
+                dataShift[i] = D[j2];
+                j2++;
+            }
+            if (i >= L / 2) {
+                dataShift[i] = D[j1];
+                j1++;
+
+            }
+
+            // create a filter (tophat)
+            if (i > L / 2 && i < (L / 2 + fc * L / (fs * 2))) {
+                //H[i]=1.00000000;
+                // mult with filter
+                //temp= dataShift[i];
+                filterData[i] = dataShift[i];//temp.multiply(H[i]);
+            } else {
+                //H[i]=0.0000000;
+                filterData[i] = z;
+            }
+        }
+
+//		printToFileComp("dataY_shift.txt", dataShift);
+//		printToFileComp("dataY_filt.txt", filterData);
+
+        for (int i = 0; i < L; i++) {
+            // mult with filter
+            // temp= dataShift[i];
+            // filterData[i]=temp.multiply(H[i]);
+
+            // ifft-shift
+            if (i < L / 2) {
+                DATA[i] = filterData[j3];
+                j3++;
+            }
+            if (i >= L / 2) {
+                DATA[i] = filterData[j4];
+                j4++;
+            }
+        }
+
+
+        // ifft
+        // ifft=  transformer.transform(DATA, TransformType.INVERSE);
+
+        // return filtered data in time domain
 
         //invert back to time domain
-        Complex[] reverseFourier = transformer.transform(fourierTransform, TransformType.INVERSE);
+        Complex[] reverseFourier = transformer.transform(DATA, TransformType.INVERSE);
 
-        //get the real part of the reverse
-        double[] result = new double[dataX.length];
+        // get real
+        double[] result = new double[l];
         for (int i = 0; i < result.length; i++) {
-            result[i] = reverseFourier[i].getReal();
+            if (i < l) {
+                result[i] = reverseFourier[i].getReal();
+            }
         }
-
+        // printToFile("dataY_fft.txt", result);
         return result;
+
+    }
+
+    public static double[] lowPass(double[] input, double[] output) {
+        if (output == null) return input;
+        double ALPHA = 0.35; // smaller value, more smoothing
+
+        for (int i = 0; i < input.length; i++) {
+            output[i] = output[i] + ALPHA * (input[i] - output[i]);
+        }
+        return output;
+    }
+
+    public static void printToFileComp(String filename, Complex[] data) {
+        try {
+            FileWriter myWriter = new FileWriter(filename);
+            for (Complex num : data) {
+                String realPart = String.valueOf(num.getReal());
+                String imagPart = num.getImaginary() + "i";
+                if (num.getImaginary() >= 0) {
+                    imagPart = "+" + imagPart;
+                }
+                myWriter.write(realPart + imagPart + "\n");
+            }
+            myWriter.close();
+            System.out.println("Successfully wrote to the file.");
+        } catch (IOException e) {
+            System.out.println("An error occurred.");
+            e.printStackTrace();
+        }
+    }
+
+    public static void printToFile(String filename, double[] data) {
+        try {
+            FileWriter myWriter = new FileWriter(filename);
+            for (double num : data) {
+                String realPart = String.valueOf(num);
+
+                myWriter.write(realPart + "\n");
+            }
+            myWriter.close();
+            System.out.println("Successfully wrote to the file.");
+        } catch (IOException e) {
+            System.out.println("An error occurred.");
+            e.printStackTrace();
+        }
     }
 
 }
+
+
+
+
