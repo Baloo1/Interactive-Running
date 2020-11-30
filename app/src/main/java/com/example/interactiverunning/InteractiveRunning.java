@@ -5,7 +5,6 @@ import org.apache.commons.math3.transform.DftNormalization;
 import org.apache.commons.math3.transform.FastFourierTransformer;
 import org.apache.commons.math3.transform.TransformType;
 
-import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -287,42 +286,6 @@ public class InteractiveRunning {
         }
         return output;
     }
-
-    public static void printToFileComp(String filename, Complex[] data) {
-        try {
-            FileWriter myWriter = new FileWriter(filename);
-            for (Complex num : data) {
-                String realPart = String.valueOf(num.getReal());
-                String imagPart = num.getImaginary() + "i";
-                if (num.getImaginary() >= 0) {
-                    imagPart = "+" + imagPart;
-                }
-                myWriter.write(realPart + imagPart + "\n");
-            }
-            myWriter.close();
-            System.out.println("Successfully wrote to the file.");
-        } catch (IOException e) {
-            System.out.println("An error occurred.");
-            e.printStackTrace();
-        }
-    }
-
-    public static void printToFile(String filename, double[] data) {
-        try {
-            FileWriter myWriter = new FileWriter(filename);
-            for (double num : data) {
-                String realPart = String.valueOf(num);
-
-                myWriter.write(realPart + "\n");
-            }
-            myWriter.close();
-            System.out.println("Successfully wrote to the file.");
-        } catch (IOException e) {
-            System.out.println("An error occurred.");
-            e.printStackTrace();
-        }
-    }
-
 }
 
 
