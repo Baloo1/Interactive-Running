@@ -5,7 +5,6 @@ import org.apache.commons.math3.transform.DftNormalization;
 import org.apache.commons.math3.transform.FastFourierTransformer;
 import org.apache.commons.math3.transform.TransformType;
 
-import java.io.IOException;
 import java.util.ArrayList;
 
 
@@ -16,10 +15,10 @@ public class InteractiveRunning {
     // Frequency for peaks from user input
     // Running speed from user input
 
-    public static void calculateData(double[] dataX, double[] dataY, double[] dataZ, double[] dataSensorT) throws IOException, ClassNotFoundException {
+    public static void calculateData(double[] dataX, double[] dataY, double[] dataZ, double[] dataSensorT) {
         // --------- load recorded data ---------
-        // time-data
-        // recalculate sensor timestamp
+        // Time data
+        // Recalculate sensor timestamp
         double[] dataT = new double[dataSensorT.length];
         double t0 = dataSensorT[0];
         for (int i = 0; i < dataSensorT.length; i++) {
@@ -27,18 +26,13 @@ public class InteractiveRunning {
         }
 
         // --------- Filter the data ---------
-        double[] dataXFiltered;
-        dataXFiltered = LowPassFilter(dataX, 10, dataT);
-        double[] dataYFiltered;
-        dataYFiltered = LowPassFilter(dataY, 10, dataT);
-        double[] dataZFiltered;
-        dataZFiltered = LowPassFilter(dataZ, 10, dataT);
-        double[] dataTFiltered;
-        dataTFiltered = dataT;
-
+        double[] dataXFiltered = lowPassFilter(dataX, 10, dataT);
+        double[] dataYFiltered = lowPassFilter(dataY, 10, dataT);
+        double[] dataZFiltered = lowPassFilter(dataZ, 10, dataT);
+        double[] dataTFiltered = dataT;
 
         // ---------  Get the vector magnitude ---------
-        // ----- normalize, find peaks and find valleys
+        // --------- Normalize, find peaks, find valleys ---------
         double[] accNorm = new double[dataTFiltered.length];
 
         // --------- Peaks ---------
@@ -47,18 +41,18 @@ public class InteractiveRunning {
         double peakThreshold = 7;
         int numPeaks = 0;
 
-        // --------- Valleys -------
-        ArrayList<Double> valleyList = new ArrayList<Double>();
-        ArrayList<Double> valleyTimeList = new ArrayList<Double>();
+        // --------- Valleys ---------
+        ArrayList<Double> valleyList = new ArrayList<>();
+        ArrayList<Double> valleyTimeList = new ArrayList<>();
         double valleyThreshold = 1.2;
 
         // calculate Normalized Acceleration, find peaks, find valleys
-        double earlierAccNormalised = Math.sqrt(Math.pow(dataXFiltered[0], 2) + Math.pow(dataYFiltered[0], 2) + Math.pow(dataZFiltered[0], 2));
-        double nextAccNormalised = Math.sqrt(Math.pow(dataXFiltered[0], 2) + Math.pow(dataYFiltered[0], 2) + Math.pow(dataZFiltered[0], 2));
+        double earlierAccNormalised = normalizeAcceleration(dataXFiltered[0], dataYFiltered[0], dataZFiltered[0]);
+        double nextAccNormalised = earlierAccNormalised;
         for (int i = 0; i < dataTFiltered.length; i++) {
             double currentAccNormalised = nextAccNormalised;
             if (i < dataTFiltered.length - 1) {
-                nextAccNormalised = Math.sqrt(Math.pow(dataXFiltered[i + 1], 2) + Math.pow(dataYFiltered[i + 1], 2) + Math.pow(dataZFiltered[i + 1], 2));
+                nextAccNormalised = normalizeAcceleration(dataXFiltered[i + 1], dataYFiltered[i + 1], dataZFiltered[i + 1]);
             }
 
             // --------- Cadence ---------
@@ -66,7 +60,7 @@ public class InteractiveRunning {
             // if currentAccNormalised is greater than its surrounding values it is a peak
             if (currentAccNormalised > earlierAccNormalised && currentAccNormalised > nextAccNormalised) { //check for peaks
 
-                // Remove to low peaks
+                // Remove too low peaks
                 if (currentAccNormalised > peakThreshold) {
                     peaksList.add(currentAccNormalised);
                     peaksTimeList.add(dataTFiltered[i]);
@@ -88,7 +82,7 @@ public class InteractiveRunning {
             earlierAccNormalised = currentAccNormalised;
         }
 
-        // make peak array of list
+        // Make peak array of list
         double[] peaks = new double[peaksList.size()];
         double[] peakTime = new double[peaksTimeList.size()];
         for (int i = 0; i < peaksList.size(); i++) {
@@ -162,7 +156,11 @@ public class InteractiveRunning {
         System.out.println("The average ground contact time is:" + (-GCT_mean) + " s");
     }
 
-    public static double[] LowPassFilter(double[] data, double fc, double[] dataT) {
+    public static double normalizeAcceleration(double x, double y, double z) {
+        return Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2) + Math.pow(z, 2));
+    }
+
+    public static double[] lowPassFilter(double[] data, double fc, double[] dataT) {
         //data: input data, must be spaced equally in time.
         //cf: The cutoff frequency at which
         //t: The time of the input data.
