@@ -30,6 +30,12 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     TextView show_x;
     TextView show_y;
     TextView show_z;
+    int maxDataSize = 700;
+    public double [] sensorDataX = new double[maxDataSize];
+    public double [] sensorDataY = new double[maxDataSize];
+    public double [] sensorDataZ = new double[maxDataSize];
+    public double [] sensorDataT = new double[maxDataSize];
+    public int sensorIndex = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -100,20 +106,31 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     }
 
     public void showAccelerometer(SensorEvent event) {
-        String x = Float.toString(event.values[0]);
-        String y = Float.toString(event.values[1]);
-        String z = Float.toString(event.values[2]);
+        Log.d("SensorRunning", String.valueOf(event.timestamp));
+        sensorDataX[sensorIndex] = (double) (event.values[0]);
+        sensorDataY[sensorIndex] = (double) (event.values[1]);
+        sensorDataZ[sensorIndex] = (double) (event.values[2]);
+        sensorDataT[sensorIndex] =  (double) event.timestamp;
+        double x = (double) (event.values[0]);
+        double y = (double) (event.values[1]);
+        double z = (double) (event.values[2]);
+        double t = (double) event.timestamp;
 
         show_x = findViewById(R.id.show_x);
         show_y = findViewById(R.id.show_y);
         show_z = findViewById(R.id.show_z);
 
-        String xText = "X: " + x;
-        String yText = "Y: " + y;
-        String zText = "Z: " + z;
-        show_x.setText(xText);
-        show_y.setText(yText);
-        show_z.setText(zText);
+        sensorIndex++;
+        if(sensorIndex==maxDataSize){
+
+            double[] calculations = InteractiveRunning.calculateData(sensorDataX, sensorDataY, sensorDataZ, sensorDataT);
+
+            sensorIndex=0;
+            show_x.setText(Double.toString(calculations[0]));
+            show_y.setText(Double.toString(calculations[1]));
+            show_z.setText(Double.toString(calculations[2]));
+        }
+
 
 //        writeFile(event.timestamp, event.values[0], event.values[1], event.values[2]);
     }

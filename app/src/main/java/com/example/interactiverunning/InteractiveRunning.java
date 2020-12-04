@@ -1,5 +1,7 @@
 package com.example.interactiverunning;
 
+import android.util.Log;
+
 import org.apache.commons.math3.complex.Complex;
 import org.apache.commons.math3.transform.DftNormalization;
 import org.apache.commons.math3.transform.FastFourierTransformer;
@@ -15,7 +17,7 @@ public class InteractiveRunning {
     // Frequency for peaks from user input
     // Running speed from user input
 
-    public static void calculateData(double[] dataX, double[] dataY, double[] dataZ, double[] dataSensorT) {
+    public static double[] calculateData(double[] dataX, double[] dataY, double[] dataZ, double[] dataSensorT) {
         // --------- load recorded data ---------
         // Time data
         // Recalculate sensor timestamp
@@ -84,11 +86,16 @@ public class InteractiveRunning {
         System.out.println("The number of detected steps are: " + numPeaks);
 
         // recalculate the unit of the cadence
-        double timeElapsed = peakTime[numPeaks - 1] - peakTime[0]; // time between first and last
-        double cadence = Math.round(numPeaks * 60 / timeElapsed); // [steps/min]
+        try {
+            double timeElapsed = peakTime[numPeaks - 1] - peakTime[0]; // time between first and last
+            double cadence = Math.round(numPeaks * 60 / timeElapsed); // [steps/min]
 
-        // print result
-        System.out.println("The cadence is:" + cadence + " steps/min");
+            // print result
+            System.out.println("The cadence is:" + cadence + " steps/min");
+        } catch (IndexOutOfBoundsException e) {
+            Log.e("PEAKS", e.getMessage());
+        }
+
 
 
         // --------- stride length ---------
@@ -137,7 +144,7 @@ public class InteractiveRunning {
         double GCT_mean = 0;
 
         for (int i = 0; i < valleyTimeList.size(); i++) {
-            GCT[i] = valleyTimeList.get(i) - peaksTimeList.get(i);
+            GCT[i] = Math.abs(valleyTimeList.get(i) - peaksTimeList.get(i));
             GCT_mean += GCT[i];
         }
 
@@ -145,6 +152,7 @@ public class InteractiveRunning {
         GCT_mean = GCT_mean / (GCT.length); // [s]
 
         System.out.println("The average ground contact time is:" + (-GCT_mean) + " s");
+        return new double[]{cadence, meanStrideLength, GCT_mean};
     }
 
     public static double normalizeAcceleration(double x, double y, double z) {
