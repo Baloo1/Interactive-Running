@@ -31,6 +31,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     TextView show_y;
     TextView show_z;
     int maxDataSize = 700;
+    int currentLap = 1;
     public double [] sensorDataX = new double[maxDataSize];
     public double [] sensorDataY = new double[maxDataSize];
     public double [] sensorDataZ = new double[maxDataSize];
@@ -129,28 +130,31 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             show_x.setText(Double.toString(calculations[0]));
             show_y.setText(Double.toString(calculations[1]));
             show_z.setText(Double.toString(calculations[2]));
+            if (BuildConfig.DEBUG) {
+                for (int i = 0; i < sensorIndex; i++) {
+                    writeFile(sensorDataX[i], sensorDataY[i], sensorDataZ[i], sensorDataT[i]);
+                }
+                currentLap++;
+            }
         }
-
-
-//        writeFile(event.timestamp, event.values[0], event.values[1], event.values[2]);
     }
 
-    public void writeFile(long ns, float x, float y, float z) {
+    public void writeFile(double x, double y, double z, double ns) {
         FileOutputStream stream = null;
         try {
-            stream = openFileOutput("dataX.txt", Context.MODE_APPEND);
+            stream = openFileOutput("dataX"+currentLap+".txt", Context.MODE_APPEND);
             byte[] dataToWrite = (x + ", ").getBytes();
             stream.write(dataToWrite);
 
-            stream = openFileOutput("dataY.txt", Context.MODE_APPEND);
+            stream = openFileOutput("dataY"+currentLap+".txt", Context.MODE_APPEND);
             dataToWrite = (y + ", ").getBytes();
             stream.write(dataToWrite);
 
-            stream = openFileOutput("dataZ.txt", Context.MODE_APPEND);
+            stream = openFileOutput("dataZ"+currentLap+".txt", Context.MODE_APPEND);
             dataToWrite = (z + ", ").getBytes();
             stream.write(dataToWrite);
 
-            stream = openFileOutput("timestamp.txt", Context.MODE_APPEND);
+            stream = openFileOutput("dataT"+currentLap+".txt", Context.MODE_APPEND);
             dataToWrite = (ns + ", ").getBytes();
             stream.write(dataToWrite);
         } catch (IOException e) {
