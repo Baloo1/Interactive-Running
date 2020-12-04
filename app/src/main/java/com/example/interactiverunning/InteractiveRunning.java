@@ -86,9 +86,10 @@ public class InteractiveRunning {
         System.out.println("The number of detected steps are: " + numPeaks);
 
         // recalculate the unit of the cadence
+        double cadence = 0;
         try {
             double timeElapsed = peakTime[numPeaks - 1] - peakTime[0]; // time between first and last
-            double cadence = Math.round(numPeaks * 60 / timeElapsed); // [steps/min]
+            cadence = Math.round(numPeaks * 60 / timeElapsed); // [steps/min]
 
             // print result
             System.out.println("The cadence is:" + cadence + " steps/min");
