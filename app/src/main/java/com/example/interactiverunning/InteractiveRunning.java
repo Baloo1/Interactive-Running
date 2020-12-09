@@ -1,7 +1,5 @@
 package com.example.interactiverunning;
 
-import android.util.Log;
-
 import org.apache.commons.math3.complex.Complex;
 import org.apache.commons.math3.transform.DftNormalization;
 import org.apache.commons.math3.transform.FastFourierTransformer;
@@ -18,13 +16,11 @@ public class InteractiveRunning {
     // Running speed from user input
 
     public static double[] calculateData(double[] dataX, double[] dataY, double[] dataZ, double[] dataSensorT) {
-        // --------- load recorded data ---------
         // Time data
-        // Recalculate sensor timestamp
-        double[] dataT = new double[dataSensorT.length];
         double t0 = dataSensorT[0];
+        double[] dataT = new double[dataSensorT.length];
         for (int i = 0; i < dataSensorT.length; i++) {
-            dataT[i] = (dataSensorT[i] - t0) * Math.pow(10, -9);
+            dataT[i] = ((dataSensorT[i] - t0) * Math.pow(10, -9));
         }
 
         // --------- Filter the data ---------
@@ -33,96 +29,98 @@ public class InteractiveRunning {
         double[] dataZFiltered = lowPassFilter(dataZ, 10, dataT);
 
         // ---------  Get the vector magnitude ---------
-        // --------- Peaks ---------
-        ArrayList<Double> peaksTimeList = new ArrayList<>();
-        double peakThreshold = 7;
-        int numPeaks = 0;
-
-        // --------- Valleys ---------
-        ArrayList<Double> valleyList = new ArrayList<>();
-        ArrayList<Double> valleyTimeList = new ArrayList<>();
-        double valleyThreshold = 1.2;
-
-        // calculate Normalized Acceleration, find peaks, find valleys
-        double earlierAccNormalised = normalizeAcceleration(dataXFiltered[0], dataYFiltered[0], dataZFiltered[0]);
-        double nextAccNormalised = earlierAccNormalised;
-        for (int i = 0; i < dataT.length; i++) {
-            double currentAccNormalised = nextAccNormalised;
-            if (i < dataT.length - 1) {
-                nextAccNormalised = normalizeAcceleration(dataXFiltered[i + 1], dataYFiltered[i + 1], dataZFiltered[i + 1]);
-            }
-
-            // --------- Cadence ---------
-            // Get all peaks and time for every peak
-            // if currentAccNormalised is greater than its surrounding values it is a peak
-            if (currentAccNormalised > earlierAccNormalised && currentAccNormalised > nextAccNormalised) { //check for peaks
-
-                // Remove too low peaks
-                if (currentAccNormalised > peakThreshold) {
-                    peaksTimeList.add(dataT[i]);
-                    numPeaks++;
-                }
-            }
-
-            // Get all valleys and time for every valley
-            // if currentAccNormalised is less than its surrounding values it is a valley
-            if (currentAccNormalised < earlierAccNormalised && currentAccNormalised < nextAccNormalised) {
-                // Remove the low valleys
-                if (currentAccNormalised < valleyThreshold) {
-                    valleyList.add(currentAccNormalised);
-                    valleyTimeList.add(dataT[i]);
-                }
-            }
-
-            earlierAccNormalised = currentAccNormalised;
+        ArrayList<Double> accNorm_list = new ArrayList<>();
+        for (int j = 0; j < dataT.length; j++) {
+            double a = Math.pow(dataXFiltered[j], 2) + Math.pow(dataYFiltered[j], 2) + Math.pow(dataZFiltered[j], 2);
+            accNorm_list.add(Math.sqrt(a));
         }
 
-        // Make peak array of list
-        double[] peakTime = new double[peaksTimeList.size()];
-        for (int i = 0; i < peaksTimeList.size(); i++) {
-            peakTime[i] = peaksTimeList.get(i);
+        Double[] accNorm = new Double[accNorm_list.size()];
+        accNorm = accNorm_list.toArray(accNorm);
+
+        // --------- Cadence ---------
+        // Get all peaks and time for every peak
+        Double[] pks = findPeak(accNorm);
+        Double[] t = findTimeOfPeak(accNorm, dataT);
+
+
+        // Remove to low peaks
+        double threshold = 7;
+        ArrayList<Double> peaksList = new ArrayList<Double>();
+        ArrayList<Double> timeList = new ArrayList<Double>();
+
+
+        for (int ind = 0; ind < pks.length; ind++) {
+            if (pks[ind] > threshold) {
+                peaksList.add(pks[ind]);
+                timeList.add(t[ind]);
+            }
         }
 
-        System.out.println("The number of detected steps are: " + numPeaks);
+        // make array of list
+        Double[] peaks = new Double[peaksList.size()];
+        peaks = peaksList.toArray(peaks);
+        Double[] peakTime = new Double[timeList.size()];
+        peakTime = timeList.toArray(peakTime);
 
+        // Count the peaks
+        int numPeaks = peaks.length;
+        System.out.println("The number of detected steps are: ");
+        System.out.println(numPeaks);
         // recalculate the unit of the cadence
-        double cadence = 0;
-        try {
-            double timeElapsed = peakTime[numPeaks - 1] - peakTime[0]; // time between first and last
-            cadence = Math.round(numPeaks * 60 / timeElapsed); // [steps/min]
+        double timeElapsed = peakTime[numPeaks - 1] - peakTime[0]; // time between first and last
+        double cadence = Math.round(numPeaks * 60 / timeElapsed); // [steps/min]
 
-            // print result
-            System.out.println("The cadence is:" + cadence + " steps/min");
-        } catch (IndexOutOfBoundsException e) {
-            Log.e("PEAKS", e.getMessage());
-        }
-
-
+        // print result
+        System.out.println("The cadence is:");
+        System.out.print(cadence);
+        System.out.print(" steps/min");
+        System.out.println(" ");
 
         // --------- stride length ---------
         // INPUT TODO
-        double speed = 8;
+        double speed = 5;
         speed = speed / 3.6;
         // Time difference between the peaks
         double[] strideLength = new double[numPeaks - 1];
-        double accStrideLength = 0;
+        double accStridelength = 0;
         for (int i = 0; i < numPeaks - 1; i++) {
-            // Stride length (s=v*t)
+            // Stridelength (s=v*t)
             strideLength[i] = speed * (peakTime[i + 1] - peakTime[i]);
-            accStrideLength += strideLength[i];
+            accStridelength += strideLength[i];
         }
 
         // Calculate average stride length
-        double meanStrideLength = accStrideLength / (numPeaks - 1);
-        System.out.println("The mean stride length is:" + meanStrideLength * 100 + "cm");
+        double meanStridelength = accStridelength / (numPeaks - 1);
+        System.out.println("The mean stride length is:");
+        System.out.print(meanStridelength * 100); // fixing the unit to cm
+        System.out.print(" cm");
+        System.out.println(" ");
 
         // --------- Ground contact time (GCT) ---------
 
+        // Find the valleys time for every valley
+        Double[] vly = findValley(accNorm);
+        Double[] timeVly = findTimeOfValley(accNorm, dataT);
+        // Remove the low valleys
+        double threshold2 = 1.2;
+        ArrayList<Double> valleyList = new ArrayList<Double>();
+        ArrayList<Double> timeValleyList = new ArrayList<Double>();
+
+
+        for (int ind = 0; ind < vly.length; ind++) {
+            if (vly[ind] < threshold2) {
+                valleyList.add(vly[ind]);
+                timeValleyList.add(timeVly[ind]);
+            }
+        }
+
+
         // Remove double-valleys (=false valleys)
-        // calculate the time differences
-        double delta;
-        for (int i = 0; i < valleyTimeList.size() - 1; i++) {
-            delta = valleyTimeList.get(i + 1) - valleyTimeList.get(i);
+        // calculate the time differeances
+        double delta = 0;
+        for (int i = 0; i < timeValleyList.size() - 1; i++) {
+            delta = timeValleyList.get(i + 1) - timeValleyList.get(i);
             // remove the valleys that are to close to each other (=false valleys)
             if (delta < 0.1) {
                 // replace two (closely-)neighbouring valleys with the mean (in time and the value of the time)
@@ -130,34 +128,134 @@ public class InteractiveRunning {
                 valleyList.set(i, (valleyList.get(i + 1) + valleyList.get(i)) / 2);
                 valleyList.remove(i + 1);
 
-                valleyTimeList.set(i, (valleyTimeList.get(i + 1) + valleyTimeList.get(i)) / 2);
-                valleyTimeList.remove(i + 1);
+                timeValleyList.set(i, (timeValleyList.get(i + 1) + timeValleyList.get(i)) / 2);
+                timeValleyList.remove(i + 1);
             }
         }
 
+        // make array
+        Double[] valley = new Double[valleyList.size()];
+        valley = valleyList.toArray(valley);
+        Double[] valleyTime = new Double[timeValleyList.size()];
+        valleyTime = timeValleyList.toArray(valleyTime);
 
-        while (valleyTimeList.size() > peaksTimeList.size()) {
-            valleyTimeList.remove(valleyTimeList.size() - 1);
+        // remove excess valleys (depend on which foot began)
+
+        while (timeValleyList.size() > timeList.size()) {
+            timeValleyList.remove(timeValleyList.size() - 1);
         }
 
         // Calculate GCT ( = time_valley-time_peaks)
-        double[] GCT = new double[valleyTimeList.size()];
+        double[] GCT = new double[timeValleyList.size()];
         double GCT_mean = 0;
 
-        for (int i = 0; i < valleyTimeList.size(); i++) {
-            GCT[i] = Math.abs(valleyTimeList.get(i) - peaksTimeList.get(i));
+        for (int i = 0; i < timeValleyList.size(); i++) {
+            GCT[i] = timeValleyList.get(i) - timeList.get(i);
             GCT_mean += GCT[i];
         }
+
 
         // Calculate average GCT and fix unit
         GCT_mean = GCT_mean / (GCT.length); // [s]
 
-        System.out.println("The average ground contact time is:" + (-GCT_mean) + " s");
-        return new double[]{cadence, meanStrideLength, GCT_mean};
+        System.out.println("The average ground contact time is:");
+        System.out.print(-GCT_mean);
+        System.out.print(" s");
+        return new double[]{cadence, meanStridelength, GCT_mean};
     }
 
-    public static double normalizeAcceleration(double x, double y, double z) {
-        return Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2) + Math.pow(z, 2));
+    static Double[] findPeak(Double[] data) {
+        ArrayList<Double> peaks_list = new ArrayList<Double>();
+
+        for (int i = 0; i < data.length; i++) {
+            // if data[i] is greater than its surrounding values it is a peak
+
+            if (i - 1 >= 0 && data[i] < data[i - 1]) { //check left
+                continue; // no peak
+            }
+            if (i + 1 <= data.length - 1 && data[i] < data[i + 1]) { // check right
+                continue; // no peak
+            }
+
+            // if peak is found, save it
+            peaks_list.add(data[i]);
+        }
+
+        // make array
+        Double[] peaks = new Double[peaks_list.size()];
+        peaks = peaks_list.toArray(peaks);
+        return peaks;
+    }
+
+    static Double[] findTimeOfPeak(Double[] data, double[] datatFilt) {
+        ArrayList<Double> time_list = new ArrayList<Double>();
+
+        for (int i = 0; i < data.length; i++) {
+            // if data[i] is greater than its surrounding values it is a peak
+
+            if (i - 1 >= 0 && data[i] < data[i - 1]) { //check left
+                continue; // no peak
+            }
+            if (i + 1 <= data.length - 1 && data[i] < data[i + 1]) { // check right
+                continue; // no peak
+            }
+
+
+            // if peak is found, save it
+            time_list.add(datatFilt[i]);
+        }
+
+        // make array
+        Double[] timeOfPeaks = new Double[time_list.size()];
+        timeOfPeaks = time_list.toArray(timeOfPeaks);
+        return timeOfPeaks;
+    }
+
+    static Double[] findValley(Double[] data) {
+        ArrayList<Double> valley_list = new ArrayList<Double>();
+
+        for (int i = 1; i < data.length - 1; i++) {
+            // if data[i] is greater than its surrounding values it is a peak
+
+            if (i - 1 >= 0 && data[i] > data[i - 1]) { //check left
+                continue; // no peak
+            }
+            if (i + 1 <= data.length - 1 && data[i] > data[i + 1]) { // check right
+                continue; // no peak
+            }
+
+
+            // if peak is found, save it
+            valley_list.add(data[i]);
+        }
+
+        // make array
+        Double[] valley = new Double[valley_list.size()];
+        valley = valley_list.toArray(valley);
+        return valley;
+    }
+
+    static Double[] findTimeOfValley(Double[] data, double[] time) {
+        ArrayList<Double> time_list = new ArrayList<Double>();
+
+        for (int i = 1; i < data.length - 1; i++) {
+            // if data[i] is greater than its surrounding values it is a peak
+
+            if (i - 1 >= 0 && data[i] > data[i - 1]) { //check left
+                continue; // no peak
+            }
+            if (i + 1 <= data.length - 1 && data[i] > data[i + 1]) { // check right
+                continue; // no peak
+            }
+
+            // if peak is found, save it
+            time_list.add(time[i]);
+        }
+
+        // make array
+        Double[] timeOfValley = new Double[time_list.size()];
+        timeOfValley = time_list.toArray(timeOfValley);
+        return timeOfValley;
     }
 
     public static double[] lowPassFilter(double[] data, double fc, double[] dataT) {
@@ -191,11 +289,11 @@ public class InteractiveRunning {
         Complex[] aComp = transformer.transform(a, TransformType.FORWARD);
 
         // DEBUGG
-//		Complex[] d = transformer.transform(D, TransformType.INVERSE);
-//		double[] dreal = new double[L+1];
-//		for(int i = 0; i< dreal.length; i++){
-//			dreal[i] = d[i].getReal();
-//		}
+        //		Complex[] d = transformer.transform(D, TransformType.INVERSE);
+        //		double[] dreal = new double[L+1];
+        //		for(int i = 0; i< dreal.length; i++){
+        //			dreal[i] = d[i].getReal();
+        //		}
 
 
         // dataShift=[D(round(length(D)/2)+1:end); D(1:length(D)/2)];
@@ -236,9 +334,6 @@ public class InteractiveRunning {
             }
         }
 
-//		printToFileComp("dataY_shift.txt", dataShift);
-//		printToFileComp("dataY_filt.txt", filterData);
-
         for (int i = 0; i < L; i++) {
             // mult with filter
             // temp= dataShift[i];
@@ -271,18 +366,7 @@ public class InteractiveRunning {
                 result[i] = reverseFourier[i].getReal();
             }
         }
-        // printToFile("dataY_fft.txt", result);
         return result;
-    }
-
-    public static double[] lowPass(double[] input, double[] output) {
-        if (output == null) return input;
-        double ALPHA = 0.35; // smaller value, more smoothing
-
-        for (int i = 0; i < input.length; i++) {
-            output[i] = output[i] + ALPHA * (input[i] - output[i]);
-        }
-        return output;
     }
 }
 
