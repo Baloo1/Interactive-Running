@@ -43,12 +43,10 @@ public class InteractiveRunning {
         Double[] pks = findPeak(accNorm);
         Double[] t = findTimeOfPeak(accNorm, dataT);
 
-
         // Remove to low peaks
         double threshold = 7;
-        ArrayList<Double> peaksList = new ArrayList<Double>();
-        ArrayList<Double> timeList = new ArrayList<Double>();
-
+        ArrayList<Double> peaksList = new ArrayList<>();
+        ArrayList<Double> timeList = new ArrayList<>();
 
         for (int ind = 0; ind < pks.length; ind++) {
             if (pks[ind] > threshold) {
@@ -83,30 +81,28 @@ public class InteractiveRunning {
         speed = speed / 3.6;
         // Time difference between the peaks
         double[] strideLength = new double[numPeaks - 1];
-        double accStridelength = 0;
+        double accStrideLength = 0;
         for (int i = 0; i < numPeaks - 1; i++) {
-            // Stridelength (s=v*t)
+            // Stride length (s=v*t)
             strideLength[i] = speed * (peakTime[i + 1] - peakTime[i]);
-            accStridelength += strideLength[i];
+            accStrideLength += strideLength[i];
         }
 
         // Calculate average stride length
-        double meanStridelength = accStridelength / (numPeaks - 1);
+        double meanStridelength = accStrideLength / (numPeaks - 1);
         System.out.println("The mean stride length is:");
         System.out.print(meanStridelength * 100); // fixing the unit to cm
         System.out.print(" cm");
         System.out.println(" ");
 
         // --------- Ground contact time (GCT) ---------
-
         // Find the valleys time for every valley
         Double[] vly = findValley(accNorm);
         Double[] timeVly = findTimeOfValley(accNorm, dataT);
         // Remove the low valleys
         double threshold2 = 1.2;
-        ArrayList<Double> valleyList = new ArrayList<Double>();
-        ArrayList<Double> timeValleyList = new ArrayList<Double>();
-
+        ArrayList<Double> valleyList = new ArrayList<>();
+        ArrayList<Double> timeValleyList = new ArrayList<>();
 
         for (int ind = 0; ind < vly.length; ind++) {
             if (vly[ind] < threshold2) {
@@ -115,10 +111,9 @@ public class InteractiveRunning {
             }
         }
 
-
         // Remove double-valleys (=false valleys)
-        // calculate the time differeances
-        double delta = 0;
+        // calculate the time differences
+        double delta;
         for (int i = 0; i < timeValleyList.size() - 1; i++) {
             delta = timeValleyList.get(i + 1) - timeValleyList.get(i);
             // remove the valleys that are to close to each other (=false valleys)
@@ -140,7 +135,6 @@ public class InteractiveRunning {
         valleyTime = timeValleyList.toArray(valleyTime);
 
         // remove excess valleys (depend on which foot began)
-
         while (timeValleyList.size() > timeList.size()) {
             timeValleyList.remove(timeValleyList.size() - 1);
         }
@@ -154,7 +148,6 @@ public class InteractiveRunning {
             GCT_mean += GCT[i];
         }
 
-
         // Calculate average GCT and fix unit
         GCT_mean = GCT_mean / (GCT.length); // [s]
 
@@ -165,7 +158,7 @@ public class InteractiveRunning {
     }
 
     static Double[] findPeak(Double[] data) {
-        ArrayList<Double> peaks_list = new ArrayList<Double>();
+        ArrayList<Double> peaks_list = new ArrayList<>();
 
         for (int i = 0; i < data.length; i++) {
             // if data[i] is greater than its surrounding values it is a peak
@@ -188,7 +181,7 @@ public class InteractiveRunning {
     }
 
     static Double[] findTimeOfPeak(Double[] data, double[] datatFilt) {
-        ArrayList<Double> time_list = new ArrayList<Double>();
+        ArrayList<Double> time_list = new ArrayList<>();
 
         for (int i = 0; i < data.length; i++) {
             // if data[i] is greater than its surrounding values it is a peak
@@ -212,7 +205,7 @@ public class InteractiveRunning {
     }
 
     static Double[] findValley(Double[] data) {
-        ArrayList<Double> valley_list = new ArrayList<Double>();
+        ArrayList<Double> valley_list = new ArrayList<>();
 
         for (int i = 1; i < data.length - 1; i++) {
             // if data[i] is greater than its surrounding values it is a peak
@@ -236,7 +229,7 @@ public class InteractiveRunning {
     }
 
     static Double[] findTimeOfValley(Double[] data, double[] time) {
-        ArrayList<Double> time_list = new ArrayList<Double>();
+        ArrayList<Double> time_list = new ArrayList<>();
 
         for (int i = 1; i < data.length - 1; i++) {
             // if data[i] is greater than its surrounding values it is a peak
