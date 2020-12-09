@@ -12,6 +12,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -31,6 +32,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     TextView show_x;
     TextView show_y;
     TextView show_z;
+    double speed = 0;
     int maxDataSize = 400;
     public double[] sensorDataX = new double[maxDataSize];
     public double[] sensorDataY = new double[maxDataSize];
@@ -124,7 +126,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         sensorIndex++;
         if (sensorIndex == maxDataSize) {
 
-            double[] calculations = InteractiveRunning.calculateData(sensorDataX, sensorDataY, sensorDataZ, sensorDataT);
+            double[] calculations = InteractiveRunning.calculateData(sensorDataX, sensorDataY, sensorDataZ, sensorDataT, speed);
 
             sensorIndex = 0;
             show_x.setText(Double.toString(calculations[0]));
@@ -143,7 +145,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         FileOutputStream stream = null;
         try {
             stream = openFileOutput("output.txt", Context.MODE_APPEND);
-            byte[] dataToWrite = ("cadence: "+ cadence + "\nmeanStrideLength: " + meanStrideLength + "\nGCT_mean: " + GCT_mean + "\n").getBytes();
+            byte[] dataToWrite = ("cadence: " + cadence + "\nmeanStrideLength: " + meanStrideLength + "\nGCT_mean: " + GCT_mean + "\n").getBytes();
             stream.write(dataToWrite);
 
         } catch (IOException e) {
@@ -192,7 +194,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
-
     }
 
     private void handleStartButton(View button) {
@@ -203,15 +204,21 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                             button.setVisibility(View.GONE);
                             startAccelerometer();
                         }
-                    },
-                    3000);
+                    }, 3000);
         }
     }
 
+    private void handleSpeedField(View view) {
+        EditText editText = (EditText) view;
+        speed = Double.parseDouble(String.valueOf(editText.getText()));
+    }
+
     @Override
-    public void notifyListeners(View button) {
-        if (button.getId() == R.id.start_button) {
-            handleStartButton(button);
+    public void notifyListeners(View view) {
+        if (view.getId() == R.id.start_button) {
+            handleStartButton(view);
+        } else if (view.getId() == R.id.speed_field) {
+            handleSpeedField(view);
         }
     }
 }

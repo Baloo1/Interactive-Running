@@ -15,7 +15,7 @@ public class InteractiveRunning {
     // Frequency for peaks from user input
     // Running speed from user input
 
-    public static double[] calculateData(double[] dataX, double[] dataY, double[] dataZ, double[] dataSensorT) {
+    public static double[] calculateData(double[] dataX, double[] dataY, double[] dataZ, double[] dataSensorT, double speed) {
         // Time data
         double t0 = dataSensorT[0];
         double[] dataT = new double[dataSensorT.length];
@@ -77,7 +77,6 @@ public class InteractiveRunning {
 
         // --------- stride length ---------
         // INPUT TODO
-        double speed = 5;
         speed = speed / 3.6;
         // Time difference between the peaks
         double[] strideLength = new double[numPeaks - 1];
@@ -89,9 +88,9 @@ public class InteractiveRunning {
         }
 
         // Calculate average stride length
-        double meanStridelength = accStrideLength / (numPeaks - 1);
+        double meanStrideLength = accStrideLength / (numPeaks - 1);
         System.out.println("The mean stride length is:");
-        System.out.print(meanStridelength * 100); // fixing the unit to cm
+        System.out.print(meanStrideLength * 100); // fixing the unit to cm
         System.out.print(" cm");
         System.out.println(" ");
 
@@ -154,7 +153,7 @@ public class InteractiveRunning {
         System.out.println("The average ground contact time is:");
         System.out.print(-GCT_mean);
         System.out.print(" s");
-        return new double[]{cadence, meanStridelength, GCT_mean};
+        return new double[]{cadence, meanStrideLength, GCT_mean};
     }
 
     static Double[] findPeak(Double[] data) {
