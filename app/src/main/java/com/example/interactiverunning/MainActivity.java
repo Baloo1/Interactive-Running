@@ -25,18 +25,18 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 
 public class MainActivity extends AppCompatActivity implements SensorEventListener, IFragmentListener {
+    public int sensorIndex = 0;
     SensorManager sensorManager;
     Boolean sensorIsRunning = false;
     TextView show_x;
     TextView show_y;
     TextView show_z;
-    int maxDataSize = 700;
+    int maxDataSize = 400;
+    public double[] sensorDataX = new double[maxDataSize];
+    public double[] sensorDataY = new double[maxDataSize];
+    public double[] sensorDataZ = new double[maxDataSize];
+    public double[] sensorDataT = new double[maxDataSize];
     int currentLap = 1;
-    public double [] sensorDataX = new double[maxDataSize];
-    public double [] sensorDataY = new double[maxDataSize];
-    public double [] sensorDataZ = new double[maxDataSize];
-    public double [] sensorDataT = new double[maxDataSize];
-    public int sensorIndex = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -108,13 +108,13 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     public void showAccelerometer(SensorEvent event) {
         Log.d("SensorRunning", String.valueOf(event.timestamp));
-        sensorDataX[sensorIndex] = (double) (event.values[0]);
-        sensorDataY[sensorIndex] = (double) (event.values[1]);
-        sensorDataZ[sensorIndex] = (double) (event.values[2]);
-        sensorDataT[sensorIndex] =  (double) event.timestamp;
-        double x = (double) (event.values[0]);
-        double y = (double) (event.values[1]);
-        double z = (double) (event.values[2]);
+        sensorDataX[sensorIndex] = event.values[0];
+        sensorDataY[sensorIndex] = event.values[1];
+        sensorDataZ[sensorIndex] = event.values[2];
+        sensorDataT[sensorIndex] = (double) event.timestamp;
+        double x = event.values[0];
+        double y = event.values[1];
+        double z = event.values[2];
         double t = (double) event.timestamp;
 
         show_x = findViewById(R.id.show_x);
@@ -122,19 +122,39 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         show_z = findViewById(R.id.show_z);
 
         sensorIndex++;
-        if(sensorIndex==maxDataSize){
+        if (sensorIndex == maxDataSize) {
 
             double[] calculations = InteractiveRunning.calculateData(sensorDataX, sensorDataY, sensorDataZ, sensorDataT);
 
-            sensorIndex=0;
+            sensorIndex = 0;
             show_x.setText(Double.toString(calculations[0]));
             show_y.setText(Double.toString(calculations[1]));
             show_z.setText(Double.toString(calculations[2]));
-            if (BuildConfig.DEBUG) {
-                for (int i = 0; i < sensorIndex; i++) {
-                    writeFile(sensorDataX[i], sensorDataY[i], sensorDataZ[i], sensorDataT[i]);
+            writeOutput(calculations[0], calculations[1], calculations[2]);
+            for (int i = 0; i < sensorDataX.length; i++) {
+                writeFile(sensorDataX[i], sensorDataY[i], sensorDataZ[i], sensorDataT[i]);
+            }
+            currentLap++;
+
+        }
+    }
+
+    public void writeOutput(double cadence, double meanStrideLength, double GCT_mean) {
+        FileOutputStream stream = null;
+        try {
+            stream = openFileOutput("output.txt", Context.MODE_APPEND);
+            byte[] dataToWrite = ("cadence: "+ cadence + "\nmeanStrideLength: " + meanStrideLength + "\nGCT_mean: " + GCT_mean + "\n").getBytes();
+            stream.write(dataToWrite);
+
+        } catch (IOException e) {
+            Log.e("Exception", "File write failed: " + e.toString());
+        } finally {
+            if (stream != null) {
+                try {
+                    stream.close();
+                } catch (IOException e) {
+                    Log.e("Exception", "File write failed: " + e.toString());
                 }
-                currentLap++;
             }
         }
     }
@@ -142,19 +162,19 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     public void writeFile(double x, double y, double z, double ns) {
         FileOutputStream stream = null;
         try {
-            stream = openFileOutput("dataX"+currentLap+".txt", Context.MODE_APPEND);
+            stream = openFileOutput("dataX.txt", Context.MODE_APPEND);
             byte[] dataToWrite = (x + ", ").getBytes();
             stream.write(dataToWrite);
 
-            stream = openFileOutput("dataY"+currentLap+".txt", Context.MODE_APPEND);
+            stream = openFileOutput("dataY.txt", Context.MODE_APPEND);
             dataToWrite = (y + ", ").getBytes();
             stream.write(dataToWrite);
 
-            stream = openFileOutput("dataZ"+currentLap+".txt", Context.MODE_APPEND);
+            stream = openFileOutput("dataZ.txt", Context.MODE_APPEND);
             dataToWrite = (z + ", ").getBytes();
             stream.write(dataToWrite);
 
-            stream = openFileOutput("dataT"+currentLap+".txt", Context.MODE_APPEND);
+            stream = openFileOutput("dataT.txt", Context.MODE_APPEND);
             dataToWrite = (ns + ", ").getBytes();
             stream.write(dataToWrite);
         } catch (IOException e) {
@@ -177,8 +197,14 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     private void handleStartButton(View button) {
         if (!sensorIsRunning) {
-            button.setVisibility(View.GONE);
-            startAccelerometer();
+            new android.os.Handler().postDelayed(
+                    new Runnable() {
+                        public void run() {
+                            button.setVisibility(View.GONE);
+                            startAccelerometer();
+                        }
+                    },
+                    3000);
         }
     }
 

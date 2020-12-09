@@ -101,7 +101,7 @@ public class InteractiveRunning {
 
         // --------- stride length ---------
         // INPUT TODO
-        double speed = 5;
+        double speed = 8;
         speed = speed / 3.6;
         // Time difference between the peaks
         double[] strideLength = new double[numPeaks - 1];
