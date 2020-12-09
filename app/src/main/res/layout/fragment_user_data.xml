@@ -4,11 +4,12 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+
     <EditText
-        android:id="@+id/length_field"
+        android:id="@+id/height_field"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Längd"
+        android:hint="Height"
         app:layout_constraintBottom_toTopOf="@id/gender_field"
         app:layout_constraintEnd_toStartOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -19,29 +20,31 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@android:drawable/btn_dropdown"
+        android:spinnerMode="dropdown"
         app:layout_constraintBottom_toTopOf="@id/age_field"
         app:layout_constraintEnd_toStartOf="parent"
         app:layout_constraintHorizontal_bias="0.038"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/length_field"
-        android:spinnerMode="dropdown"/>
+        app:layout_constraintTop_toBottomOf="@id/height_field" />
 
     <Spinner
         android:id="@+id/age_field"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@android:drawable/btn_dropdown"
+        android:spinnerMode="dropdown"
         app:layout_constraintBottom_toTopOf="@id/exercise_field"
         app:layout_constraintEnd_toStartOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/gender_field"
-        android:spinnerMode="dropdown"/>
+        app:layout_constraintTop_toBottomOf="@id/gender_field" />
 
+    <!-- TODO: slider -->
     <EditText
         android:id="@+id/exercise_field"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:hint="Exercise"
         app:layout_constraintBottom_toTopOf="@id/goal_field"
         app:layout_constraintEnd_toStartOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
@@ -52,6 +55,7 @@
         android:id="@+id/goal_field"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:hint="Goaltime"
         app:layout_constraintBottom_toTopOf="@id/speed_field"
         app:layout_constraintEnd_toStartOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -61,6 +65,7 @@
         android:id="@+id/speed_field"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:hint="Speed"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="parent"
         app:layout_constraintStart_toStartOf="parent"
