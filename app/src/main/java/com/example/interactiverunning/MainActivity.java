@@ -25,7 +25,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private final double[] sensorDataY = new double[maxDataSize];
     private final double[] sensorDataZ = new double[maxDataSize];
     private final double[] sensorDataT = new double[maxDataSize];
-    private final WriteFile writeFile = new WriteFile();
     private int sensorIndex = 0;
     private double speed = 0;
 
@@ -76,9 +75,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             show_cadence.setText(String.format(Locale.UK, "%g", cadence));
             show_stride_length.setText(String.format(Locale.UK, "%g", meanStrideLength));
             show_gct.setText(String.format(Locale.UK, "%g", GCT_mean));
-            for (int i = 0; i < sensorDataX.length; i++) {
-                WriteFile.writeFile(this, sensorDataX[i], sensorDataY[i], sensorDataZ[i], sensorDataT[i], calculations);
+            for (int i = 0; i < sensorIndex; i++) {
+                WriteFile.writeDataFiles(this, sensorDataX[i], sensorDataY[i], sensorDataZ[i], sensorDataT[i]);
             }
+            WriteFile.writeCalculationFile(this, calculations);
             sensorIndex = 0;
         }
     }

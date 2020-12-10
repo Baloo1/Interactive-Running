@@ -8,30 +8,33 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 
 public class WriteFile {
-    public static void writeFile(Activity activity, double x, double y, double z, double time, double[] calculations) {
+    public static void writeDataFiles(Activity activity, double x, double y, double z, double time) {
+        byte[] dataToWrite = (x + ", ").getBytes();
+        writeToFile(activity, "dataX.txt", dataToWrite);
+
+        dataToWrite = (y + ", ").getBytes();
+        writeToFile(activity, "dataY.txt", dataToWrite);
+
+        dataToWrite = (z + ", ").getBytes();
+        writeToFile(activity, "dataZ.txt", dataToWrite);
+
+        dataToWrite = (time + ", ").getBytes();
+        writeToFile(activity, "dataT.txt", dataToWrite);
+    }
+
+    public static void writeCalculationFile(Activity activity, double[] calculations) {
+        double cadence = calculations[0];
+        double meanStrideLength = calculations[1];
+        double GCT_mean = calculations[2];
+        String fileName = "calculations.txt";
+        byte[] dataToWrite = ("cadence: " + cadence + "\nmeanStrideLength: " + meanStrideLength + "\nGCT_mean: " + GCT_mean + "\n").getBytes();
+        writeToFile(activity, fileName, dataToWrite);
+    }
+
+    private static void writeToFile(Activity activity, String fileName, byte[] dataToWrite) {
         FileOutputStream stream = null;
         try {
-            stream = activity.openFileOutput("dataX.txt", Context.MODE_APPEND);
-            byte[] dataToWrite = (x + ", ").getBytes();
-            stream.write(dataToWrite);
-
-            stream = activity.openFileOutput("dataY.txt", Context.MODE_APPEND);
-            dataToWrite = (y + ", ").getBytes();
-            stream.write(dataToWrite);
-
-            stream = activity.openFileOutput("dataZ.txt", Context.MODE_APPEND);
-            dataToWrite = (z + ", ").getBytes();
-            stream.write(dataToWrite);
-
-            stream = activity.openFileOutput("dataT.txt", Context.MODE_APPEND);
-            dataToWrite = (time + ", ").getBytes();
-            stream.write(dataToWrite);
-
-            double cadence = calculations[0];
-            double meanStrideLength = calculations[1];
-            double GCT_mean = calculations[2];
-            stream = activity.openFileOutput("calculations.txt", Context.MODE_APPEND);
-            dataToWrite = ("cadence: " + cadence + "\nmeanStrideLength: " + meanStrideLength + "\nGCT_mean: " + GCT_mean + "\n").getBytes();
+            stream = activity.openFileOutput(fileName, Context.MODE_APPEND);
             stream.write(dataToWrite);
         } catch (IOException e) {
             Log.e("Exception", "File write failed: " + e.toString());
