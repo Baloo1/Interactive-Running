@@ -10,17 +10,18 @@ import android.widget.Button;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
-public class FirstFragment extends Fragment {
+public class RunningFragment extends Fragment {
     private IFragmentListener fragmentListener;
 
     @Override
-    public void onAttach(Context context) {
+    public void onAttach(@NonNull Context context) {
         super.onAttach(context);
         fragmentListener = (IFragmentListener) context;
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_running_view, container, false);
 
         Button startButton = view.findViewById(R.id.start_button);
@@ -29,7 +30,6 @@ public class FirstFragment extends Fragment {
                 fragmentListener.notifyListeners(v);
             }
         });
-        // Inflate the layout for this fragment
         return view;
     }
 
