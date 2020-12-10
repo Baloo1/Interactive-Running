@@ -6,11 +6,8 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
-import android.os.Debug;
 import android.util.Log;
-import android.view.Menu;
 import android.view.View;
-import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -18,10 +15,13 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
+import com.example.interactiverunning.utils.DebugHelper;
+
 import java.io.FileOutputStream;
 import java.io.IOException;
 
 public class MainActivity extends AppCompatActivity implements SensorEventListener, IFragmentListener {
+    private final DebugHelper debugHelper = new DebugHelper();
     public int sensorIndex = 0;
     SensorManager sensorManager;
     Boolean sensorIsRunning = false;
@@ -40,24 +40,12 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        debugHelper();
+        debugHelper.keepScreenOn(this);
 
         setContentView(R.layout.activity_main);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-    }
-
-    public void debugHelper() {
-        if (BuildConfig.DEBUG) {
-            if (Debug.isDebuggerConnected()) {
-                Log.d("SCREEN", "Keeping screen on for debugging, detach debugger and force an onResume to turn it off.");
-                getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-            } else {
-                getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-                Log.d("SCREEN", "Keeping screen on for debugging is now deactivated.");
-            }
-        }
     }
 
     public void startAccelerometer() {
