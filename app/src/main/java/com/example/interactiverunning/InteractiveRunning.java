@@ -30,8 +30,10 @@ public class InteractiveRunning {
         double[] dataZFiltered = lowPassFilter(dataZ, 2, dataT);
 
         // ---------  Get the vector magnitude ---------
+		double t_remove = 3;
+		double ind_remove=Math.abs(Math.round(t_remove/(dataSensorT[2]-dataSensorT[1])));
         ArrayList<Double> accNorm_list = new ArrayList<>();
-        for (int j = 0; j < dataT.length; j++) {
+        for (int j = 0; j < dataT.length-ind_remove; j++) {
             double a = Math.pow(dataXFiltered[j], 2) + Math.pow(dataYFiltered[j], 2) + Math.pow(dataZFiltered[j], 2);
             accNorm_list.add(Math.sqrt(a));
         }
