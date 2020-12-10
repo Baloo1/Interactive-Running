@@ -6,6 +6,7 @@ import org.apache.commons.math3.transform.FastFourierTransformer;
 import org.apache.commons.math3.transform.TransformType;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 
 public class InteractiveRunning {
@@ -24,9 +25,9 @@ public class InteractiveRunning {
         }
 
         // --------- Filter the data ---------
-        double[] dataXFiltered = lowPassFilter(dataX, 10, dataT);
-        double[] dataYFiltered = lowPassFilter(dataY, 10, dataT);
-        double[] dataZFiltered = lowPassFilter(dataZ, 10, dataT);
+        double[] dataXFiltered = lowPassFilter(dataX, 2, dataT);
+        double[] dataYFiltered = lowPassFilter(dataY, 2, dataT);
+        double[] dataZFiltered = lowPassFilter(dataZ, 2, dataT);
 
         // ---------  Get the vector magnitude ---------
         ArrayList<Double> accNorm_list = new ArrayList<>();
@@ -36,7 +37,12 @@ public class InteractiveRunning {
         }
 
         Double[] accNorm = new Double[accNorm_list.size()];
-        accNorm = accNorm_list.toArray(accNorm);
+//        accNorm = accNorm_list.toArray(accNorm);
+		double max= Collections.max(accNorm_list);
+
+		for (int j=0;j<accNorm.length;j++) {
+			accNorm[j]=accNorm_list.get(j)/max;
+		}
 
         // --------- Cadence ---------
         // Get all peaks and time for every peak
@@ -44,7 +50,7 @@ public class InteractiveRunning {
         Double[] t = findTimeOfPeak(accNorm, dataT);
 
         // Remove to low peaks
-        double threshold = 7;
+        double threshold = 0.75;
         ArrayList<Double> peaksList = new ArrayList<>();
         ArrayList<Double> timeList = new ArrayList<>();
 
@@ -83,7 +89,7 @@ public class InteractiveRunning {
         double accStrideLength = 0;
         for (int i = 0; i < numPeaks - 1; i++) {
             // Stride length (s=v*t)
-            strideLength[i] = speed * (peakTime[i + 1] - peakTime[i]);
+            strideLength[i] = speed * (peakTime[i + 1] - peakTime[i])/2;
             accStrideLength += strideLength[i];
         }
 
@@ -99,7 +105,7 @@ public class InteractiveRunning {
         Double[] vly = findValley(accNorm);
         Double[] timeVly = findTimeOfValley(accNorm, dataT);
         // Remove the low valleys
-        double threshold2 = 1.2;
+        double threshold2 = 0.75;
         ArrayList<Double> valleyList = new ArrayList<>();
         ArrayList<Double> timeValleyList = new ArrayList<>();
 
@@ -116,7 +122,7 @@ public class InteractiveRunning {
         for (int i = 0; i < timeValleyList.size() - 1; i++) {
             delta = timeValleyList.get(i + 1) - timeValleyList.get(i);
             // remove the valleys that are to close to each other (=false valleys)
-            if (delta < 0.1) {
+            if (delta < 0.5) {
                 // replace two (closely-)neighbouring valleys with the mean (in time and the value of the time)
 
                 valleyList.set(i, (valleyList.get(i + 1) + valleyList.get(i)) / 2);
@@ -143,7 +149,7 @@ public class InteractiveRunning {
         double GCT_mean = 0;
 
         for (int i = 0; i < timeValleyList.size(); i++) {
-            GCT[i] = timeValleyList.get(i) - timeList.get(i);
+            GCT[i] = Math.abs(timeValleyList.get(i) - timeList.get(i));
             GCT_mean += GCT[i];
         }
 
@@ -151,7 +157,7 @@ public class InteractiveRunning {
         GCT_mean = GCT_mean / (GCT.length); // [s]
 
         System.out.println("The average ground contact time is:");
-        System.out.print(-GCT_mean);
+        System.out.print(GCT_mean);
         System.out.print(" s");
         return new double[]{cadence, meanStrideLength, GCT_mean};
     }
