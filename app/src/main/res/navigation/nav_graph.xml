@@ -20,7 +20,7 @@
         android:id="@+id/FirstFragment"
         android:name="com.example.interactiverunning.FirstFragment"
         android:label="@string/first_fragment_label"
-        tools:layout="@layout/fragment_first"/>
+        tools:layout="@layout/fragment_running_view"/>
     <fragment
         android:id="@+id/SecondFragment"
         android:name="com.example.interactiverunning.SecondFragment"

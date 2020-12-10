@@ -119,9 +119,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         double z = event.values[2];
         double t = (double) event.timestamp;
 
-        show_x = findViewById(R.id.show_x);
-        show_y = findViewById(R.id.show_y);
-        show_z = findViewById(R.id.show_z);
+        show_x = findViewById(R.id.show_cadence);
+        show_y = findViewById(R.id.show_stride_length);
+        show_z = findViewById(R.id.show_gct);
 
         sensorIndex++;
         if (sensorIndex == maxDataSize) {
