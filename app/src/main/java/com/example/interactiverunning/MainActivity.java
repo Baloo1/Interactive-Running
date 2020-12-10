@@ -135,7 +135,13 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     private void handleSpeedField(View view) {
         EditText editText = (EditText) view;
-        speed = Double.parseDouble(String.valueOf(editText.getText()));
+        if (!(editText.getText() == null)) {
+            speed = Double.parseDouble(String.valueOf(editText.getText()));
+        } else {
+            /*Fallback speed*/
+            /*TODO: Remove and add error handling on input*/
+            speed = 8;
+        }
     }
 
     @Override
