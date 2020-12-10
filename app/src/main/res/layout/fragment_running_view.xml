@@ -13,10 +13,12 @@
         android:layout_width="match_parent"
         android:layout_height="513dp"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
         <TextView
+            android:id="@+id/cadence_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/cadence"
@@ -29,13 +31,12 @@
             android:id="@+id/show_cadence"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:layout_marginBottom="16dp"
             android:text="@string/_0"
             android:textSize="50sp"
             app:layout_constraintBottom_toTopOf="@+id/divider1"
-            app:layout_constraintStart_toStartOf="@+id/show_stride_length"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/cadence_text" />
 
         <View
             android:id="@+id/divider1"
@@ -50,6 +51,7 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
+            android:id="@+id/stride_length_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/stride_length"
@@ -62,13 +64,12 @@
             android:id="@+id/show_stride_length"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:layout_marginBottom="16dp"
             android:text="@string/_0"
             android:textSize="50sp"
-            app:layout_constraintBottom_toBottomOf="@+id/show_gct"
-            app:layout_constraintStart_toStartOf="@+id/show_gct"
-            app:layout_constraintTop_toTopOf="@+id/show_cadence" />
+            app:layout_constraintBottom_toTopOf="@+id/divider2"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/stride_length_text" />
 
         <View
             android:id="@+id/divider2"
@@ -78,10 +79,12 @@
             android:background="@color/primaryDarkColor"
             app:layout_constraintBottom_toTopOf="@id/divider3"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/divider1" />
 
         <TextView
+            android:id="@+id/gct_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/ground_contact_time"
@@ -94,13 +97,12 @@
             android:id="@+id/show_gct"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
             android:text="@string/_0"
             android:textSize="50sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/divider2" />
+            app:layout_constraintTop_toBottomOf="@+id/gct_text" />
 
         <View
             android:id="@+id/divider3"
@@ -131,7 +133,6 @@
             android:text="@string/start"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.498"
             app:layout_constraintStart_toStartOf="parent" />
 
         <Button
