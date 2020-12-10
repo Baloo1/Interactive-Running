@@ -8,10 +8,7 @@ import com.example.interactiverunning.BuildConfig;
 import com.example.interactiverunning.MainActivity;
 
 public class DebugHelper {
-    public DebugHelper() {
-    }
-
-    public void keepScreenOn(MainActivity mainActivity) {
+    public static void keepScreenOn(MainActivity mainActivity) {
         if (BuildConfig.DEBUG) {
             if (Debug.isDebuggerConnected()) {
                 Log.d("SCREEN", "Keeping screen on for debugging, detach debugger and force an onResume to turn it off.");
