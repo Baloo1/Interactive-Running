@@ -19,12 +19,12 @@
     <fragment
         android:id="@+id/FirstFragment"
         android:name="com.example.interactiverunning.FirstFragment"
-        android:label="@string/first_fragment_label"
+        android:label="@string/running_data_fragment_label"
         tools:layout="@layout/fragment_running_view"/>
     <fragment
         android:id="@+id/SecondFragment"
         android:name="com.example.interactiverunning.SecondFragment"
-        android:label="@string/second_fragment_label"
+        android:label="@string/statistics_fragment_label"
         tools:layout="@layout/fragment_statistics">
 
         <action
