@@ -30,6 +30,13 @@ public class RunningFragment extends Fragment {
                 fragmentListener.notifyListeners(v);
             }
         });
+
+        Button stopButton = view.findViewById(R.id.stop_button);
+        stopButton.setOnClickListener(v -> {
+            if (fragmentListener != null) {
+                fragmentListener.notifyListeners(v);
+            }
+        });
         return view;
     }
 

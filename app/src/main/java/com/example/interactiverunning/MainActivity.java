@@ -27,6 +27,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private final double[] sensorDataT = new double[maxDataSize];
     private int sensorIndex = 0;
     private double speed = 0;
+    private boolean sensorIsRunning = false;
+    private boolean sensorIsStarting = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,6 +50,31 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         } else {
             Toast.makeText(this, "SENSOR MISSING", Toast.LENGTH_LONG).show();
         }
+    }
+
+    public void stopAccelerometer() {
+        SensorManager sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+        Sensor accelerometerSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+
+        sensorManager.unregisterListener(this, accelerometerSensor);
+        Toast.makeText(this, "SENSOR STOPPED", Toast.LENGTH_LONG).show();
+
+        TextView show_cadence = findViewById(R.id.show_cadence);
+        TextView show_stride_length = findViewById(R.id.show_stride_length);
+        TextView show_gct = findViewById(R.id.show_gct);
+
+        double[] calculations = InteractiveRunning.calculateData(sensorDataX, sensorDataY, sensorDataZ, sensorDataT, speed);
+        double cadence = calculations[0];
+        double meanStrideLength = calculations[1];
+        double GCT_mean = calculations[2];
+        show_cadence.setText(String.format(Locale.UK, "%g", cadence));
+        show_stride_length.setText(String.format(Locale.UK, "%g", meanStrideLength));
+        show_gct.setText(String.format(Locale.UK, "%g", GCT_mean));
+        for (int i = 0; i < sensorIndex; i++) {
+            WriteFile.writeDataFiles(this, sensorDataX[i], sensorDataY[i], sensorDataZ[i], sensorDataT[i]);
+        }
+        WriteFile.writeCalculationFile(this, calculations);
+        sensorIndex = 0;
     }
 
     @Override
@@ -88,14 +115,21 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     }
 
     private void handleStartButton(View button) {
-        boolean sensorIsRunning = false;
-        if (!sensorIsRunning) {
-            new android.os.Handler().postDelayed(new Runnable() {
-                public void run() {
-                    button.setVisibility(View.GONE);
-                    startAccelerometer();
-                }
+        if (!sensorIsRunning && !sensorIsStarting) {
+            sensorIsStarting = true;
+            Toast.makeText(this, "STARTING...", Toast.LENGTH_SHORT).show();
+            new android.os.Handler().postDelayed(() -> {
+                button.setVisibility(View.GONE);
+                findViewById(R.id.stop_button).setVisibility(View.VISIBLE);
+                startAccelerometer();
+                sensorIsRunning = true;
             }, 3000);
+            sensorIsStarting = false;
+        } else if (sensorIsRunning && !sensorIsStarting) {
+            stopAccelerometer();
+            button.setVisibility(View.GONE);
+            findViewById(R.id.start_button).setVisibility(View.VISIBLE);
+            sensorIsRunning = false;
         }
     }
 
@@ -106,7 +140,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     @Override
     public void notifyListeners(View view) {
-        if (view.getId() == R.id.start_button) {
+        if (view.getId() == R.id.start_button || view.getId() == R.id.stop_button) {
             handleStartButton(view);
         } else if (view.getId() == R.id.speed_field) {
             handleSpeedField(view);
