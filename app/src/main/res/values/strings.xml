@@ -17,4 +17,6 @@
     <string name="stride_length">Stride length</string>
     <string name="cadence">Cadence</string>
     <string name="stop">Stop</string>
+    <string name="welcome_app">Welcome to Interactive Running</string>
+    <string name="get_started">Get Started</string>
 </resources>
