@@ -29,11 +29,18 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private double speed = 0;
     private boolean sensorIsRunning = false;
     private boolean sensorIsStarting = false;
+    private TextView showCadence;
+    private TextView showStrideLength;
+    private TextView showGCT;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         DebugHelper.keepScreenOn(this);
+
+        showCadence = findViewById(R.id.show_cadence);
+        showStrideLength = findViewById(R.id.show_stride_length);
+        showGCT = findViewById(R.id.show_gct);
 
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
@@ -52,6 +59,11 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         }
     }
 
+    @Override
+    public void onSensorChanged(SensorEvent event) {
+        showAccelerometer(event);
+    }
+
     public void stopAccelerometer() {
         SensorManager sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
         Sensor accelerometerSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
@@ -59,27 +71,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         sensorManager.unregisterListener(this, accelerometerSensor);
         Toast.makeText(this, "SENSOR STOPPED", Toast.LENGTH_LONG).show();
 
-        TextView show_cadence = findViewById(R.id.show_cadence);
-        TextView show_stride_length = findViewById(R.id.show_stride_length);
-        TextView show_gct = findViewById(R.id.show_gct);
-
-        double[] calculations = InteractiveRunning.calculateData(sensorDataX, sensorDataY, sensorDataZ, sensorDataT, speed);
-        double cadence = calculations[0];
-        double meanStrideLength = calculations[1];
-        double GCT_mean = calculations[2];
-        show_cadence.setText(String.format(Locale.UK, "%g", cadence));
-        show_stride_length.setText(String.format(Locale.UK, "%g", meanStrideLength));
-        show_gct.setText(String.format(Locale.UK, "%g", GCT_mean));
-        for (int i = 0; i < sensorIndex; i++) {
-            WriteFile.writeDataFiles(this, sensorDataX[i], sensorDataY[i], sensorDataZ[i], sensorDataT[i]);
-        }
-        WriteFile.writeCalculationFile(this, calculations);
-        sensorIndex = 0;
-    }
-
-    @Override
-    public void onSensorChanged(SensorEvent event) {
-        showAccelerometer(event);
+        updateRunningViews();
     }
 
     public void showAccelerometer(SensorEvent event) {
@@ -89,25 +81,25 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         sensorDataZ[sensorIndex] = event.values[2];
         sensorDataT[sensorIndex] = (double) event.timestamp;
 
-        TextView show_cadence = findViewById(R.id.show_cadence);
-        TextView show_stride_length = findViewById(R.id.show_stride_length);
-        TextView show_gct = findViewById(R.id.show_gct);
-
         sensorIndex++;
         if (sensorIndex == maxDataSize) {
-            double[] calculations = InteractiveRunning.calculateData(sensorDataX, sensorDataY, sensorDataZ, sensorDataT, speed);
-            double cadence = calculations[0];
-            double meanStrideLength = calculations[1];
-            double GCT_mean = calculations[2];
-            show_cadence.setText(String.format(Locale.UK, "%g", cadence));
-            show_stride_length.setText(String.format(Locale.UK, "%g", meanStrideLength));
-            show_gct.setText(String.format(Locale.UK, "%g", GCT_mean));
-            for (int i = 0; i < sensorIndex; i++) {
-                WriteFile.writeDataFiles(this, sensorDataX[i], sensorDataY[i], sensorDataZ[i], sensorDataT[i]);
-            }
-            WriteFile.writeCalculationFile(this, calculations);
-            sensorIndex = 0;
+            updateRunningViews();
         }
+    }
+
+    private void updateRunningViews() {
+        double[] calculations = InteractiveRunning.calculateData(sensorDataX, sensorDataY, sensorDataZ, sensorDataT, speed);
+        double cadence = calculations[0];
+        double meanStrideLength = calculations[1];
+        double meanGCT = calculations[2];
+        showCadence.setText(String.format(Locale.UK, "%g", cadence));
+        showStrideLength.setText(String.format(Locale.UK, "%g", meanStrideLength));
+        showGCT.setText(String.format(Locale.UK, "%g", meanGCT));
+        for (int i = 0; i < sensorIndex; i++) {
+            WriteFile.writeDataFiles(this, sensorDataX[i], sensorDataY[i], sensorDataZ[i], sensorDataT[i]);
+        }
+        WriteFile.writeCalculationFile(this, calculations);
+        sensorIndex = 0;
     }
 
     @Override
@@ -115,6 +107,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     }
 
     private void handleStartButton(View button) {
+        int startDelay = 3000;
         if (!sensorIsRunning && !sensorIsStarting) {
             sensorIsStarting = true;
             Toast.makeText(this, "STARTING...", Toast.LENGTH_SHORT).show();
@@ -123,7 +116,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 findViewById(R.id.stop_button).setVisibility(View.VISIBLE);
                 startAccelerometer();
                 sensorIsRunning = true;
-            }, 3000);
+            }, startDelay);
             sensorIsStarting = false;
         } else if (sensorIsRunning && !sensorIsStarting) {
             stopAccelerometer();

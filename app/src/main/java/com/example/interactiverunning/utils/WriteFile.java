@@ -7,8 +7,12 @@ import android.util.Log;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-public class WriteFile {
-    public static void writeDataFiles(Activity activity, double x, double y, double z, double time) {
+public final class WriteFile {
+    private WriteFile() {
+        //Disable default constructor
+    }
+
+    public static void writeDataFiles(final Activity activity, final double x, final double y, final double z, final double time) {
         byte[] dataToWrite = (x + ", ").getBytes();
         writeToFile(activity, "dataX.txt", dataToWrite);
 
@@ -22,16 +26,16 @@ public class WriteFile {
         writeToFile(activity, "dataT.txt", dataToWrite);
     }
 
-    public static void writeCalculationFile(Activity activity, double[] calculations) {
+    public static void writeCalculationFile(final Activity activity, final double[] calculations) {
         double cadence = calculations[0];
         double meanStrideLength = calculations[1];
-        double GCT_mean = calculations[2];
+        double meanGCT = calculations[2];
         String fileName = "calculations.txt";
-        byte[] dataToWrite = ("cadence: " + cadence + "\nmeanStrideLength: " + meanStrideLength + "\nGCT_mean: " + GCT_mean + "\n").getBytes();
+        byte[] dataToWrite = ("cadence: " + cadence + "\nmeanStrideLength: " + meanStrideLength + "\nGCT_mean: " + meanGCT + "\n").getBytes();
         writeToFile(activity, fileName, dataToWrite);
     }
 
-    private static void writeToFile(Activity activity, String fileName, byte[] dataToWrite) {
+    private static void writeToFile(final Activity activity, final String fileName, final byte[] dataToWrite) {
         FileOutputStream stream = null;
         try {
             stream = activity.openFileOutput(fileName, Context.MODE_APPEND);
