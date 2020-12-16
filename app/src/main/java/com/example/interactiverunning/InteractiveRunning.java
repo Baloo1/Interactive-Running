@@ -8,14 +8,11 @@ import org.apache.commons.math3.transform.TransformType;
 import java.util.ArrayList;
 import java.util.Collections;
 
-
 public class InteractiveRunning {
 
-    // TODO: 10 seconds
-    // 700 values in array, approx 10 steps
+    // 400 values in input array, approx 8 steps
     // Frequency for peaks from user input
     // Running speed from user input
-
     public static double[] calculateData(double[] dataX, double[] dataY, double[] dataZ, double[] dataSensorT, double speed) {
         // Time data
         double t0 = dataSensorT[0];
@@ -25,26 +22,26 @@ public class InteractiveRunning {
         }
 
         // --------- Filter the data ---------
-        double[] dataXFiltered = lowPassFilter(dataX, 2, dataT);
-        double[] dataYFiltered = lowPassFilter(dataY, 2, dataT);
-        double[] dataZFiltered = lowPassFilter(dataZ, 2, dataT);
+        double fc = 4.129;
+        double[] dataXFiltered = lowPassFilter(dataX, fc, dataT);
+        double[] dataYFiltered = lowPassFilter(dataY, fc, dataT);
+        double[] dataZFiltered = lowPassFilter(dataZ, fc, dataT);
 
         // ---------  Get the vector magnitude ---------
-		double t_remove = 3;
-		double ind_remove=Math.abs(Math.round(t_remove/(dataSensorT[2]-dataSensorT[1])));
+        double t_remove = 3;
+        double ind_remove = Math.abs(Math.round(t_remove / (dataSensorT[2] - dataSensorT[1])));
         ArrayList<Double> accNorm_list = new ArrayList<>();
-        for (int j = 0; j < dataT.length-ind_remove; j++) {
+        for (int j = 0; j < dataT.length - ind_remove; j++) {
             double a = Math.pow(dataXFiltered[j], 2) + Math.pow(dataYFiltered[j], 2) + Math.pow(dataZFiltered[j], 2);
             accNorm_list.add(Math.sqrt(a));
         }
 
         Double[] accNorm = new Double[accNorm_list.size()];
-//        accNorm = accNorm_list.toArray(accNorm);
-		double max= Collections.max(accNorm_list);
+        double max = Collections.max(accNorm_list);
 
-		for (int j=0;j<accNorm.length;j++) {
-			accNorm[j]=accNorm_list.get(j)/max;
-		}
+        for (int j = 0; j < accNorm.length; j++) {
+            accNorm[j] = accNorm_list.get(j) / max;
+        }
 
         // --------- Cadence ---------
         // Get all peaks and time for every peak
@@ -84,14 +81,13 @@ public class InteractiveRunning {
         System.out.println(" ");
 
         // --------- stride length ---------
-        // INPUT TODO
         speed = speed / 3.6;
         // Time difference between the peaks
         double[] strideLength = new double[numPeaks - 1];
         double accStrideLength = 0;
         for (int i = 0; i < numPeaks - 1; i++) {
             // Stride length (s=v*t)
-            strideLength[i] = speed * (peakTime[i + 1] - peakTime[i])/2;
+            strideLength[i] = speed * (peakTime[i + 1] - peakTime[i]) / 2;
             accStrideLength += strideLength[i];
         }
 
@@ -134,12 +130,6 @@ public class InteractiveRunning {
                 timeValleyList.remove(i + 1);
             }
         }
-
-        // make array
-        Double[] valley = new Double[valleyList.size()];
-        valley = valleyList.toArray(valley);
-        Double[] valleyTime = new Double[timeValleyList.size()];
-        valleyTime = timeValleyList.toArray(valleyTime);
 
         // remove excess valleys (depend on which foot began)
         while (timeValleyList.size() > timeList.size()) {
@@ -216,14 +206,12 @@ public class InteractiveRunning {
 
         for (int i = 1; i < data.length - 1; i++) {
             // if data[i] is greater than its surrounding values it is a peak
-
-            if (i - 1 >= 0 && data[i] > data[i - 1]) { //check left
+            if (data[i] > data[i - 1]) { //check left
                 continue; // no peak
             }
             if (i + 1 <= data.length - 1 && data[i] > data[i + 1]) { // check right
                 continue; // no peak
             }
-
 
             // if peak is found, save it
             valley_list.add(data[i]);
@@ -240,8 +228,7 @@ public class InteractiveRunning {
 
         for (int i = 1; i < data.length - 1; i++) {
             // if data[i] is greater than its surrounding values it is a peak
-
-            if (i - 1 >= 0 && data[i] > data[i - 1]) { //check left
+            if (data[i] > data[i - 1]) { //check left
                 continue; // no peak
             }
             if (i + 1 <= data.length - 1 && data[i] > data[i + 1]) { // check right
@@ -258,14 +245,14 @@ public class InteractiveRunning {
         return timeOfValley;
     }
 
+    /*
+    data: input data, must be spaced equally in time.
+    cf: The cutoff frequency at which
+    t: The time of the input data.
+    */
     public static double[] lowPassFilter(double[] data, double fc, double[] dataT) {
-        //data: input data, must be spaced equally in time.
-        //cf: The cutoff frequency at which
-        //t: The time of the input data.
-
         double fs = 1 / (dataT[1] - dataT[0]);
         int l = data.length;
-
 
         int pow = 1;
         while (pow < data.length) {
@@ -276,25 +263,11 @@ public class InteractiveRunning {
         double[] paddedData = new double[pow];
         int L = paddedData.length;
         double[] f = new double[L];
-        for (int i = 0; i < data.length; i++) {
-            paddedData[i] = data[i];
-        }
+        System.arraycopy(data, 0, paddedData, 0, data.length);
 
         // FFT
         FastFourierTransformer transformer = new FastFourierTransformer(DftNormalization.STANDARD);
         Complex[] D = transformer.transform(paddedData, TransformType.FORWARD);
-
-        //debugg
-        double[] a = {paddedData[1], paddedData[2]};
-        Complex[] aComp = transformer.transform(a, TransformType.FORWARD);
-
-        // DEBUGG
-        //		Complex[] d = transformer.transform(D, TransformType.INVERSE);
-        //		double[] dreal = new double[L+1];
-        //		for(int i = 0; i< dreal.length; i++){
-        //			dreal[i] = d[i].getReal();
-        //		}
-
 
         // dataShift=[D(round(length(D)/2)+1:end); D(1:length(D)/2)];
         Complex[] dataShift = new Complex[L];
@@ -302,7 +275,6 @@ public class InteractiveRunning {
         Complex[] filterData = new Complex[L];
 
         Complex[] DATA = new Complex[L];
-        Complex[] ifft = new Complex[L];
 
         int j1 = 0;
         int j2 = (L / 2);
@@ -323,7 +295,7 @@ public class InteractiveRunning {
             }
 
             // create a filter (tophat)
-            if (i > L / 2 && i < (L / 2 + fc * L / (fs * 2))) {
+            if (i > L / 2 && i < ((L / 2D) + fc * L / (fs * 2))) {
                 //H[i]=1.00000000;
                 // mult with filter
                 //temp= dataShift[i];
@@ -362,9 +334,7 @@ public class InteractiveRunning {
         // get real
         double[] result = new double[l];
         for (int i = 0; i < result.length; i++) {
-            if (i < l) {
-                result[i] = reverseFourier[i].getReal();
-            }
+            result[i] = reverseFourier[i].getReal();
         }
         return result;
     }
