@@ -19,7 +19,7 @@
         android:id="@+id/welcome_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp"
+        android:layout_marginBottom="20dp"
         android:paddingHorizontal="30dp"
         android:paddingVertical="15dp"
         android:text="@string/get_started"
