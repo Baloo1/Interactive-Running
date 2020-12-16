@@ -50,12 +50,18 @@ Here the different use cases is illustrated.
 
 The entry point for the app is the welcome screen
 
-*insert welcome screen*
+<img src="https://github.com/Baloo1/TRA105/blob/main/examples/Interactive%20Running%20Example%201.jpg" width="320" height="693">
+
+_Welcome Screen_
+
 
 From here you can only move forward. The next image depicts the metrics use case, where the user can enter their metrics. It is not yet supported to save this metrics and to use these metrics
 to allow the user to compare themselves to other users.
 
-*insert user data screen*
+<img src="https://github.com/Baloo1/TRA105/blob/main/examples/Interactive%20Running%20Example%202.jpg" width="320" height="693">
+
+_User Metrics Screen_
+
 
 If you fail to enter your speed here the app will crash. This could be improved with a check forcing the user to enter all fields.
 The input fields are not the optimal for best UX for the specific input. Height should be sanitized on input and provide easier input than a free text input.
@@ -67,7 +73,10 @@ Also the general contrast between fields and background could be improved.
 
 The confirm button takes you to the next screen.
 
-*insert running view*
+<img src="https://github.com/Baloo1/TRA105/blob/main/examples/Interactive%20Running%20Example%203.jpg" width="320" height="693">
+
+_Running Screen_
+
 
 From here you can track your cadence, stride length and ground contact time. This is done by pressing the start button. After 3 seconds the tracking will start and after about 800 microseconds 
 it will start showing the values in the UI. To stop tracking press stop. It will then finalize and show the last values in the UI.
