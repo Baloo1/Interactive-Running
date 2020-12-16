@@ -50,7 +50,7 @@ Here the different use cases is illustrated.
 
 The entry point for the app is the welcome screen
 
-<img src="https://github.com/Baloo1/TRA105/blob/main/examples/Interactive%20Running%20Example%201.jpg" width="320" height="693">
+<img src="https://github.com/Baloo1/Interactive-Running/blob/main/examples/Interactive%20Running%20Example%201.jpg" width="320" height="693">
 
 _Welcome Screen_
 
@@ -58,7 +58,7 @@ _Welcome Screen_
 From here you can only move forward. The next image depicts the metrics use case, where the user can enter their metrics. It is not yet supported to save this metrics and to use these metrics
 to allow the user to compare themselves to other users.
 
-<img src="https://github.com/Baloo1/TRA105/blob/main/examples/Interactive%20Running%20Example%202.jpg" width="320" height="693">
+<img src="https://github.com/Baloo1/Interactive-Running/blob/main/examples/Interactive%20Running%20Example%202.jpg" width="320" height="693">
 
 _User Metrics Screen_
 
@@ -73,7 +73,7 @@ Also the general contrast between fields and background could be improved.
 
 The confirm button takes you to the next screen.
 
-<img src="https://github.com/Baloo1/TRA105/blob/main/examples/Interactive%20Running%20Example%203.jpg" width="320" height="693">
+<img src="https://github.com/Baloo1/Interactive-Running/blob/main/examples/Interactive%20Running%20Example%203.jpg" width="320" height="693">
 
 _Running Screen_
 
