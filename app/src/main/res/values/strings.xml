@@ -3,7 +3,6 @@
     <!-- Strings used for fragments for navigation -->
     <string name="running_data_fragment_label">Running</string>
     <string name="statistics_fragment_label">Statistics</string>
-    <string name="next">Next</string>
     <string name="previous">Previous</string>
 
     <string name="height">Height</string>
