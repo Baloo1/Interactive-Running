@@ -16,7 +16,9 @@
         app:layout_constraintEnd_toStartOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
-
+    
+    <!--    TODO: populate spinners -->
+    <!--    https://developer.android.com/guide/topics/ui/controls/spinner -->
     <Spinner
         android:id="@+id/gender_field"
         android:layout_width="match_parent"
